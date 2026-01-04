@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import send from "../utils/response/response.js";
 import { pool } from "../db/config.js";
 import { v4 as uuidv4 } from 'uuid';
+import { validateVMName } from "../utils/validators/index.js";
 
 
 // TODO: Put every thing in try catch block
@@ -110,88 +111,96 @@ export const createVM = async (req: customRequest, res: Response) => {
 
   try {
     const { vmName, vmDescription, planId } = req.body; // gets user's subscribed plan ID
-    const userId: string | undefined = req.id; // gets user ID
 
-    // gets user plan details
-    const [plan, fields]: any = await pool.query('SELECT u.in_use, u.expires_at, p.name, p.vCPU, p.memory, p.storage, p.backups FROM user_plans u INNER JOIN plans p ON u.plan_id=p.id WHERE u.id=? AND u.user_id=?', [planId, userId]);
+    const isVailedVMName = validateVMName(vmName); // checks if VM Name is vailed (eg, db01.prateek.inc, staging-server-prateek-labs)or not 
 
-    const currentDate = new Date();
-    const expired: boolean = plan[0]?.expires_at <= currentDate;
-    const inUse: boolean = plan[0]?.in_use === 1;
+    if (!isVailedVMName) {
+      send.badRequest(res, "Enter vailed VM Name"); // sends error is VM name is not vailed
+    } else {
 
-    // checks if plan exists
-    if (plan.length != 0) {
+      const userId: string | undefined = req.id; // gets user ID
 
-      // check if plan is expired
-      if (expired) {
-        send.forbidden(res, "Plan Expired.");
-      } else {
+      // gets user plan details
+      const [plan, fields]: any = await pool.query('SELECT u.in_use, u.expires_at, p.name, p.vCPU, p.memory, p.storage, p.backups FROM user_plans u INNER JOIN plans p ON u.plan_id=p.id WHERE u.id=? AND u.user_id=?', [planId, userId]);
 
-        // check if plan in use
-        if (inUse) {
-          send.forbidden(res, "Instance is already initialized with this plan.");
+      const currentDate = new Date();
+      const expired: boolean = plan[0]?.expires_at <= currentDate;
+      const inUse: boolean = plan[0]?.in_use === 1;
+
+      // checks if plan exists
+      if (plan.length != 0) {
+
+        // check if plan is expired
+        if (expired) {
+          send.forbidden(res, "Plan Expired.");
         } else {
-          // generates VM's ID (stored as name in LXC/LXD and ID in DB)
-          const vmID = `vm-${uuidv4()}`;
 
-          // chcek if vm name is same or not
-          const [vmExists]: any = await pool.query('SELECT name FROM instances WHERE name=? AND user_id=?', [vmName, userId]);
-
-          // sends conflict error if vm name is already thier 
-          if (vmExists.length != 0) {
-            send.conflict(res, "VM already exists with this name");
-            return;
-          }
-
-          // gets available IP
-          const [ip, fields]: any = await pool.query('SELECT * FROM ip_addresses WHERE in_use=0 ORDER BY id ASC LIMIT 1');
-
-          const assignableIP = ip[0].ip;
-          const assignableIPId = ip[0].id;
-
-          // cheks if IP exists to assign to VM
-          if (assignableIP == undefined) {
-            send.internalError(res); // No assignable IP Found
+          // check if plan in use
+          if (inUse) {
+            send.forbidden(res, "Instance is already initialized with this plan.");
           } else {
+            // generates VM's ID (stored as name in LXC/LXD and ID in DB)
+            const vmID = `vm-${uuidv4()}`;
 
-            const vmData: instanceData = {
-              id: vmID,
-              vCPU: plan[0].vCPU,
-              memory: plan[0].memory,
-              storage: plan[0].storage,
-              ipAddress: assignableIP,
-            };
+            // chcek if vm name is same or not
+            const [vmExists]: any = await pool.query('SELECT name FROM instances WHERE name=? AND user_id=?', [vmName, userId]);
 
-            const vmCreationRequest: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(vmData)
-            })).json();
+            // sends conflict error if vm name is already thier 
+            if (vmExists.length != 0) {
+              send.conflict(res, "VM already exists with this name");
+              return;
+            }
 
-            if (vmCreationRequest.status === 200) {
+            // gets available IP
+            const [ip, fields]: any = await pool.query('SELECT * FROM ip_addresses WHERE in_use=0 ORDER BY id ASC LIMIT 1');
 
-              // set current ip in_use to true
-              const [reserveIP, fields]: any = await pool.query('UPDATE ip_addresses SET in_use=1 WHERE id=?', [assignableIPId]);
+            const assignableIP = ip[0].ip;
+            const assignableIPId = ip[0].id;
 
-              // sets userPlan in_use section to true (restricts creating multiple VMs from one plan)
-              const [userPlan, userPlanfields]: any = await pool.query('UPDATE user_plans set in_use=1 WHERE id=?', planId);
-
-              // NOTE: images and region are not yet been implementaed so its not fuctional (image and region is decided by lxd_agent)
-
-              const [instance, instanceFields]: any = await pool.query('INSERT INTO instances (id, name, description, status, image_id, address_id, user_id, user_plan_id, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [vmID, vmName, vmDescription, "Provisioning", 1, ip[0].id, userId, planId, 1]);
-
-              send.ok(res, "VM Created Successfully");
+            // cheks if IP exists to assign to VM
+            if (assignableIP == undefined) {
+              send.internalError(res); // No assignable IP Found
             } else {
-              // error coz VM creation might have failed
-              send.internalError(res);
+
+              const vmData: instanceData = {
+                id: vmID,
+                vCPU: plan[0].vCPU,
+                memory: plan[0].memory,
+                storage: plan[0].storage,
+                ipAddress: assignableIP,
+              };
+
+              const vmCreationRequest: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(vmData)
+              })).json();
+
+              if (vmCreationRequest.status === 200) {
+
+                // set current ip in_use to true
+                const [reserveIP, fields]: any = await pool.query('UPDATE ip_addresses SET in_use=1 WHERE id=?', [assignableIPId]);
+
+                // sets userPlan in_use section to true (restricts creating multiple VMs from one plan)
+                const [userPlan, userPlanfields]: any = await pool.query('UPDATE user_plans set in_use=1 WHERE id=?', planId);
+
+                // NOTE: images and region are not yet been implementaed so its not fuctional (image and region is decided by lxd_agent)
+
+                const [instance, instanceFields]: any = await pool.query('INSERT INTO instances (id, name, description, status, image_id, address_id, user_id, user_plan_id, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [vmID, vmName, vmDescription, "Provisioning", 1, ip[0].id, userId, planId, 1]);
+
+                send.ok(res, "VM Created Successfully");
+              } else {
+                // error coz VM creation might have failed
+                send.internalError(res);
+              }
             }
           }
         }
+      } else {
+        send.notFound(res, "Plan does not exist.");
       }
-    } else {
-      send.notFound(res, "Plan does not exist.");
     }
   } catch (error) {
     send.internalError(res);
