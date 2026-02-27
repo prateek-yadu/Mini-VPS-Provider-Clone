@@ -120,10 +120,15 @@
 } */
 
 @theme {
-  --color-primary: #404040;
+  /* --color-primary: #404040; */
+  --color-primary: #171717;
   --color-secondary-foreground: #525252;
-  --color-accent: #262626;
+  --color-accent: #394447;
   --color-primary-background: #fafafa;
   --color-border-primary: #e5e5e5;
   --color-muted: #757575;
+}
+
+html{
+  color: #171717;
 }
