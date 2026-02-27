@@ -87,7 +87,7 @@ export function RegisterForm() {
         <label htmlFor="email" className="block text-sm">Email</label>
         <input type="email" name="email" id="email" className="w-full py-1 px-3 my-1 border-[1px] rounded border-accent/20 focus:border-accent/40 outline-none bg-accent/[4%] text-sm " placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
-      <div className="py-1">
+      <div className="pb-1">
         <label htmlFor="password" className="block text-sm">Password</label>
         <input type="password" name="password" id="password" className="w-full py-1 px-3 my-1 border-[1px] rounded border-accent/20 focus:border-accent/40 outline-none bg-accent/[4%] text-sm " placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
