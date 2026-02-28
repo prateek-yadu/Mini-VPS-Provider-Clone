@@ -1,6 +1,5 @@
 import { Link, Navigate } from "react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAuthState } from "../app/features/auth/AuthHandler";
 import type { RootState } from "../app/store";
@@ -44,14 +43,14 @@ export function LoginForm() {
           imageUrl: response.data.imageUrl
         }));
 
-        toast.success(response.message);
+        console.log(response.message)
       } else {
-        toast.error(response.message);
+        console.log(response.message)
       }
-
+      
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Something went wrong");
+      console.log("Something went wrong");
     }
 
   };

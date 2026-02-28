@@ -26,11 +26,4 @@
   },
   "include": ["src"],
 
-  /* shadcn support */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
 }

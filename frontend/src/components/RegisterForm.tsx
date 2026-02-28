@@ -1,6 +1,5 @@
 import { Link, Navigate } from "react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 
@@ -36,16 +35,16 @@ export function RegisterForm() {
 
       // shows toast
       if (response.status == 201) {
-        toast.success(response.message);
+        console.log(response.message)
       } else if (response.status == 409) {
-        toast.error(response.message);
+        console.log(response.message)
       } else {
-        toast.error(response.message);
+        console.log(response.message)
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Something went wrong");
+      console.log("Something went wrong");
     }
   };
 
