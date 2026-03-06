@@ -25,6 +25,7 @@ interface instanceData {
   userId?: string | undefined;
   userPlanId?: string;
   regionId?: string;
+  rootPassword?: string
 }
 
 export const allVMs = async (req: customRequest, res: Response) => {
@@ -110,7 +111,7 @@ export const getVM = async (req: customRequest, res: Response) => {
 export const createVM = async (req: customRequest, res: Response) => {
 
   try {
-    const { vmName, vmDescription, planId } = req.body; // gets user's subscribed plan ID
+    const { vmName, vmDescription, rootPassword, planId } = req.body; // gets user's subscribed plan ID
 
     const isVailedVMName = validateVMName(vmName); // checks if VM Name is vailed (eg, db01.prateek.inc, staging-server-prateek-labs)or not 
 
@@ -168,6 +169,7 @@ export const createVM = async (req: customRequest, res: Response) => {
                 memory: plan[0].memory,
                 storage: plan[0].storage,
                 ipAddress: assignableIP,
+                rootPassword: rootPassword
               };
 
               const vmCreationRequest: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {

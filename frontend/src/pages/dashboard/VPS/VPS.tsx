@@ -74,7 +74,7 @@ export default function VPS() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ vmName: name, vmDescription: description, planId: selectedPlan })
+            body: JSON.stringify({ vmName: name, vmDescription: description, rootPassword: password, planId: selectedPlan })
         })).json();
         alert(response.message);
     };
