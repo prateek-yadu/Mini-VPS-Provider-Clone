@@ -8,7 +8,7 @@ import VPS from "../pages/dashboard/VPS/VPS";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ProtectedRoute from "../components/custom/ProtectedRoute";
-import AuthProvider from "../components/custom/AuthProvider";
+import AuthProvider from "../components/Providers/AuthProvider";
 import { Provider } from "react-redux";
 import { store } from "../app/store";
 import Pricing from "../pages/Pricing";
