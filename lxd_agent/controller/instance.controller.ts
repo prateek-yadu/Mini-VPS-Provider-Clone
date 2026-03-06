@@ -4,9 +4,9 @@ import send from "../utils/response/index.js";
 export const createInstance = async (req: Request, res: Response) => {
 
     try {
-        const { id, ipAddress, vCPU, memory, storage } = req.body;
+        const { id, rootPassword, ipAddress, vCPU, memory, storage } = req.body;
 
-        if (id === undefined || ipAddress === undefined || vCPU === undefined || memory === undefined || storage === undefined) {
+        if (id === undefined || rootPassword === undefined || ipAddress === undefined || vCPU === undefined || memory === undefined || storage === undefined) {
             send.badRequest(res);
         } else {
 
@@ -17,6 +17,7 @@ export const createInstance = async (req: Request, res: Response) => {
                     "name": `${id}`,
                     "config": {
                         "cloud-init.network-config": `network:\n  version: 2\n  ethernets:\n    enp5s0:\n      dhcp4: false\n      addresses:\n        - ${ipAddress}/24\n      gateway4: 10.10.10.1\n      nameservers:\n        addresses: [10.10.10.1,8.8.8.8]\n\n`,
+                        "cloud-init.user-data": `#cloud-config\nchpasswd:\n  expire: false\n  users:\n  - {name: root, password: ${rootPassword}, type: text}\nssh_pwauth: true\ndisable_root: true\nruncmd:\n  - echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/custom-cloud-init.conf\n  - systemctl restart ssh`,
                         "limits.cpu": `${vCPU}`,
                         "limits.memory": `${memory}GiB`
                     },
