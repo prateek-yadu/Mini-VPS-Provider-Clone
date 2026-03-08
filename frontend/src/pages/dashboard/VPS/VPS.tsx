@@ -56,9 +56,11 @@ export default function VPS() {
 
     // gets user's subscribed plans 
     const getSubscribedPlans = async () => {
-        const response = await (await (await fetch("/api/v1/profile/me/plans")).json()).data;
-        setPlans(response); // sets user plan
-        setSelectedPlan(response[0]?.id); // by default select plan at index 0
+        const response = await (await (await fetch("/api/v1/profile/me/plans?is_expired=false&in_use=false")).json()).data;
+        if (response.length > 0) {
+            setPlans(response); // sets user plan
+            setSelectedPlan(response[0].id); // by default select plan at index 0
+        }
     };
 
     // gets user's VMs info
@@ -105,7 +107,9 @@ export default function VPS() {
         setName("");
         setDescription("");
         setPassword("");
-        setSelectedPlan(plans[0]?.id);
+        if (plans.length > 0) {
+            setSelectedPlan(plans[0]?.id);
+        }
     };
 
     // returns formated date eg. March 18, 2026
@@ -179,12 +183,16 @@ export default function VPS() {
                     <div className="grid grid-cols-2 items-center justify-between">
                         <label htmlFor="plan" className="text-secondary-foreground text-base">Plan</label>
                         <select name="plan" id="plan" className="outline-none border-[1px] rounded border-accent/20 px-2 py-1 text-secondary-foreground bg-primary-background/50 hover:border-accent/40 focus:border-accent/40 focus:shadow" onChange={(e) => {
-                            setSelectedPlan(e.target.value);
-                        }} value={selectedPlan}>
-                            {plans?.map((plan: UserPlan) => (
+                            if (selectedPlan.length >= 0) {
+                                setSelectedPlan(e.target.value);
+                            }
+                        }} value={selectedPlan.length > 0 ? selectedPlan : "null"}>
+                            {plans.length > 0 ? plans?.map((plan: UserPlan) => (
                                 plan.in_use != 1 &&
                                 <option value={plan.id} className="bg-primary-background text-primary" key={plan.id}>{plan.name} {"(" + plan.vCPU + " vCPU, " + plan.memory + " GiB Memory, " + plan.storage + " GiB Storage)"}</option>
-                            ))}
+                            )) : (
+                                <option className="bg-primary-background text-primary">No Plan found</option>
+                            )}
                         </select>
                     </div>
                 </form>
