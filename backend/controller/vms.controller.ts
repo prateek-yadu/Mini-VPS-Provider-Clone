@@ -25,7 +25,7 @@ interface instanceData {
   userId?: string | undefined;
   userPlanId?: string;
   regionId?: string;
-  rootPassword?: string
+  rootPassword?: string;
 }
 
 export const allVMs = async (req: customRequest, res: Response) => {
@@ -118,6 +118,11 @@ export const createVM = async (req: customRequest, res: Response) => {
     if (!isVailedVMName) {
       send.badRequest(res, "Enter vailed VM Name"); // sends error is VM name is not vailed
     } else {
+
+      if (rootPassword == undefined || rootPassword.length <= 0) { // cheks root password exists 
+        send.badRequest(res, "Enter Root Password");
+        return;
+      }
 
       const userId: string | undefined = req.id; // gets user ID
 
