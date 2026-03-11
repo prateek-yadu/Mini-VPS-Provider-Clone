@@ -41,7 +41,6 @@ export const purchasePlan = async (req: customRequest, res: Response) => {
 
     } catch (error) {
         send.internalError(res);
-        console.log(error);
     }
 
 };
