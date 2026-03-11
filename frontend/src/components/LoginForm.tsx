@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAuthState } from "../app/features/auth/AuthHandler";
 import type { RootState } from "../app/store";
+import { toast } from "sonner";
 
 
 export function LoginForm() {
@@ -43,14 +44,14 @@ export function LoginForm() {
           imageUrl: response.data.imageUrl
         }));
 
-        console.log(response.message)
+        toast.success(response.message)
       } else {
-        console.log(response.message)
+        toast.error(response.message)
       }
       
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log("Something went wrong");
+      toast.error("Something went wrong");
     }
 
   };

@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle2, CopyIcon, Ellipsis, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface UserPlan {
     id: string;
@@ -78,7 +79,7 @@ export default function VPS() {
             },
             body: JSON.stringify({ vmName: name, vmDescription: description, rootPassword: password, planId: selectedPlan })
         })).json();
-        alert(response.message);
+        toast(response.message);
     };
 
     // update VM state (start, stop, restart)
@@ -87,7 +88,7 @@ export default function VPS() {
         const response = await (await fetch(`/api/v1/vms/${name}/${state}`, {
             method: "PUT"
         })).json();
-        alert(response.message);
+        toast(response.message);
 
         setIsCollapsableOpen(!isCollapsableOpen); // closes collapsable
     };
@@ -98,7 +99,7 @@ export default function VPS() {
         const response = await (await fetch(`/api/v1/vms/${name}`, {
             method: "DELETE"
         })).json();
-        alert(response.message);
+        toast(response.message);
 
         setIsCollapsableOpen(!isCollapsableOpen); // closes collapsable
     };
@@ -260,7 +261,7 @@ export default function VPS() {
                             {vm.ip}
                             <CopyIcon className="size-4 text-accent/70 hover:text-accent cursor-pointer" onClick={() => {
                                 navigator.clipboard.writeText(vm.ip);
-                                alert("IP Coppied");
+                                toast.success("IP Coppied");
                             }} />
                         </div>
 

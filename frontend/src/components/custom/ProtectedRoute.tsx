@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router';
 import type { RootState } from '../../app/store';
 import { useEffect, useState } from 'react';
 import { updateAuthState } from '../../app/features/auth/AuthHandler';
+import { toast } from 'sonner';
 
 
 export default function ProtectedRoute() {
@@ -54,7 +55,7 @@ export default function ProtectedRoute() {
             // sets the isAuthenticated value to false
             dispatch(updateAuthState({ isAuthenticated: false, name: undefined, email: undefined, imageUrl: undefined }));
 
-            console.log("Something went wrong please try again."); // shows error message
+            toast.error("Something went wrong please try again."); // shows error message
         }
 
         setLoading(false);
