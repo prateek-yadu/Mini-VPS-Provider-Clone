@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/custom/Navbar";
 import { Cpu, Database, DatabaseBackup, MemoryStick } from "lucide-react";
+import { toast } from "sonner";
 
 interface Plan {
     id: number;
@@ -35,7 +36,7 @@ export default function Pricing() {
         })).json();
 
         // sends response
-        alert(response.message);
+        toast(response.message);
     };
 
     useEffect(() => {
