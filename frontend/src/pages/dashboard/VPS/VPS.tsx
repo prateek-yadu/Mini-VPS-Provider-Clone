@@ -219,12 +219,12 @@ export default function VPS() {
 
             {/* Header */}
             <div className="flex items-center justify-between mt-4">
-                <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                <h3 className="scroll-m-20 text-xl lg:text-2xl font-semibold tracking-tight">
                     VPS - Overview
                 </h3>
                 <button className="flex items-center gap-2 bg-accent py-2 text-primary-background px-4 rounded text-sm font-medium hover:bg-accent/90 cursor-pointer" onClick={() => {
                     changeDrawerState();
-                }}> <Plus className="size-5" />Create VM</button>
+                }}> <Plus className="size-5 hidden lg:flex" />Create VM</button>
             </div>
 
             {/* Body */}
