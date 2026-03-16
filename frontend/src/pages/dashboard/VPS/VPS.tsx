@@ -133,19 +133,19 @@ export default function VPS() {
     }, []);
 
     return (
-        <main className="text-primary">
+        <div className="text-primary">
 
             {/* Drawer */}
-            <div className={`${isDrawerOpen ? "absolute" : "hidden"} right-0 top-0 bottom-0 w-3xl z-50 bg-white border-l-[1px] border-border-primary`}>
+            <div className={`${isDrawerOpen ? "translate-x-0" : "translate-x-[100%]"} fixed flex flex-col right-0 top-0 bottom-0 lg:w-3xl z-50 bg-white border-l-[1px] border-border-primary transition-all duration-300 min-h-screen`}>
                 {/* header */}
                 <div className="flex items-center justify-start px-4 py-3 border-b-[1px] border-border-primary">
                     <h5 className="scroll-m-20 text-lg font-medium tracking-tight">Create VPS</h5>
                 </div>
 
                 {/* body */}
-                <form className="px-6 py-8 space-y-8">
+                <form className="px-6 py-8 space-y-8 flex-1">
                     {/* vm name */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="name" className="text-secondary-foreground text-base">VM Name</label>
                         <input type="text" name="name" id="name" value={name} onChange={(e) => {
                             setName(e.target.value);
@@ -153,7 +153,7 @@ export default function VPS() {
                     </div>
 
                     {/* vm description */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="description" className="text-secondary-foreground text-base self-baseline">Description <span className="bg-primary-background text-primary/80 font-semibold ring-1 ring-border-primary rounded-full text-xs px-2 py-1 ml-2">optional</span></label>
                         <textarea name="description" id="description" value={description} onChange={(e) => {
                             setDescription(e.target.value);
@@ -161,7 +161,7 @@ export default function VPS() {
                     </div>
 
                     {/* vm root password */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="password" className="text-secondary-foreground text-base">Root password</label>
                         <input type="password" name="password" id="password" value={password} onChange={(e) => {
                             setPassword(e.target.value);
@@ -169,19 +169,19 @@ export default function VPS() {
                     </div>
 
                     {/* OS selection */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="os" className="text-secondary-foreground text-base">Operating System</label>
                         <input type="text" name="os" id="os" className="outline-none border-[1px] rounded border-accent/20 px-2 py-1 text-primary/50 bg-primary-background/50 hover:border-accent/40 focus:border-accent/40 focus:shadow" value={VPSOS} readOnly />
                     </div>
 
                     {/* region selection */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="region" className="text-secondary-foreground text-base">Region</label>
                         <input type="text" name="region" id="region" className="outline-none border-[1px] rounded border-accent/20 px-2 py-1 text-primary/50 bg-primary-background/50 hover:border-accent/40 focus:border-accent/40 focus:shadow" value={VPSRegion} readOnly />
                     </div>
 
                     {/* plan selection */}
-                    <div className="grid grid-cols-2 items-center justify-between">
+                    <div className="grid grid-cols-2 gap-2 lg:gap-0 items-center justify-between">
                         <label htmlFor="plan" className="text-secondary-foreground text-base">Plan</label>
                         <select name="plan" id="plan" className="outline-none border-[1px] rounded border-accent/20 px-2 py-1 text-secondary-foreground bg-primary-background/50 hover:border-accent/40 focus:border-accent/40 focus:shadow" onChange={(e) => {
                             if (selectedPlan.length >= 0) {
@@ -199,7 +199,7 @@ export default function VPS() {
                 </form>
 
                 {/* footer */}
-                <div className="absolute bottom-0 px-6 left-0 right-0">
+                <div className="px-6">
                     <div className="flex items-center justify-end my-6 gap-4 w-full">
                         <button className=" bg-accent/5 px-2 py-1 rounded text-sm border-[1px] border-border-primary cursor-pointer hover:bg-accent/10 hover:text-accent" onClick={() => {
                             changeDrawerState();
@@ -231,14 +231,14 @@ export default function VPS() {
             <div className="w-full bg-white border-[1px] border-border-primary mt-8 rounded-xl">
 
                 {/* table head  */}
-                <div className="grid grid-cols-4 px-8">
-                    <div className="flex items-center justify-start gap-2 py-4">
+                <div className="grid xl:grid-cols-4 grid-cols-1 px-8">
+                    <div className="flex items-center justify-center xl:justify-start gap-2 py-4">
                         <span className="text-base font-semibold text-accent ">Server Details</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 py-4">
+                    <div className="hidden xl:flex items-center justify-center gap-2 py-4">
                         <span className="text-base font-semibold text-accent ">IP</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 py-4">
+                    <div className="hidden xl:flex items-center justify-center gap-2 py-4">
                         <span className="text-base font-semibold text-accent ">Status</span>
                     </div>
                 </div>
@@ -247,17 +247,17 @@ export default function VPS() {
 
                 {/* VM Box */}
                 {vms?.map((vm: VM) => (
-                    <div className="px-8 py-6 grid grid-cols-4 border-t-[1px] border-border-primary" key={vm.name}>
+                    <div className="px-8 py-6 grid xl:grid-cols-4 border-t-[1px] border-border-primary" key={vm.name}>
 
                         {/* grid 1 - VM and plan Info */}
-                        <div className="grid grid-cols-[32px_1fr] gap-x-4 grid-rows-2 items-center">
+                        <div className="flex md:grid grid-cols-[32px_1fr] gap-x-4 grid-rows-2 items-center">
                             <img src="/images/os/ubuntu.png" alt="" className="size-8" />
-                            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight text-accent">{vm.name}</h4>
-                            <p className="col-end-3 text-muted flex items-center gap-3 text-sm">{vm.plan}  <span className="font-light">|</span> <span className="bg-primary-background text-primary/80 font-semibold ring-1 ring-border-primary rounded-full text-xs px-2 py-1">Expires at {formatDate(vm.expires_at)}</span></p>
+                            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight text-accent wrap-anywhere">{vm.name}</h4>
+                            <p className="hidden col-end-3 text-muted md:flex items-center gap-3 text-xs font-medium"> <span>{vm.plan}</span>  <span className="font-light xl:hidden 2xl:flex">|</span> <span className="bg-primary-background text-primary/80 font-medium ring-1 ring-border-primary rounded-full text-xs px-2 py-1 xl:hidden 2xl:flex">Expires at {formatDate(vm.expires_at)}</span></p>
                         </div>
 
                         {/* grid 2 - IP Address */}
-                        <div className="flex items-center justify-center text-primary gap-3">
+                        <div className="hidden xl:flex items-center justify-center text-primary gap-3">
                             {vm.ip}
                             <CopyIcon className="size-4 text-accent/70 hover:text-accent cursor-pointer" onClick={() => {
                                 navigator.clipboard.writeText(vm.ip);
@@ -266,7 +266,7 @@ export default function VPS() {
                         </div>
 
                         {/* grid 3 - VM Status  */}
-                        <div className="flex items-center justify-center text-primary gap-2">
+                        <div className="hidden xl:flex items-center justify-center text-primary gap-2">
                             {vm.status === "Stopped" && <AlertCircle className="size-7 text-white fill-red-600" />}
                             {vm.status === "Running" && <CheckCircle2 className="size-7 fill-green-600 text-white" />}
 
@@ -275,8 +275,8 @@ export default function VPS() {
 
                         {/* grid 4 - vm options (firewall, backup, start, stop, restart, delete) */}
                         <div className="flex items-center justify-end gap-6 relative">
-                            <button className="text-accent px-4 py-2 ring-1 rounded ring-accent text-sm font-medium hover:bg-accent hover:text-white transition-all duration-300 cursor-pointer">Manage</button>
-                            <button className="text-accent/70 hover:text-accent cursor-pointer transition-all duration-300 z-40" onClick={() => {
+                            <button className="text-accent px-4 py-2 ring-1 rounded ring-accent text-sm font-medium hover:bg-accent hover:text-white transition-all duration-300 cursor-pointer w-full xl:w-fit mt-6 xl:mt-0">Manage</button>
+                            <button className="hidden xl:block text-accent/70 hover:text-accent cursor-pointer transition-all duration-300 z-40" onClick={() => {
                                 changeCollapsableState();
                                 setOpenedState(vm.name);
                             }}><Ellipsis /></button>
@@ -309,7 +309,7 @@ export default function VPS() {
 
             </div>
 
-        </main>
+        </div>
 
     );
 }
