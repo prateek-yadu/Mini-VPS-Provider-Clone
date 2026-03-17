@@ -117,7 +117,7 @@ export default function DashboardLayout() {
           <div className='flex items-center justify-center gap-4'>
 
             {/* user account info collapsable card */}
-            <div className={`${isCollapsableOpen ? "absolute" : "hidden"} top-14 right-16 bg-white shadow border-[1px] border-border-primary rounded z-50 w-80`}>
+            <div className={`${isCollapsableOpen ? "absolute" : "hidden"} top-14  right-0 md:right-16 bg-white shadow border-[1px] border-border-primary rounded z-50 md:w-80 w-full`}>
 
               {/* user name, image and email */}
               <div className="flex items-center gap-4 p-4">
@@ -149,7 +149,7 @@ export default function DashboardLayout() {
             </div>
 
             {/* Overlay Screen  */}
-            <div className={`${isCollapsableOpen ? "absolute top-0 left-0 right-0 bottom-0" : "hidden"}`} onClick={() => { setIsCollapsableOpen(!isCollapsableOpen); }}></div>
+            <div className={`${isCollapsableOpen ? "absolute top-0 left-0 right-0 bottom-0 bg-black/40 md:bg-transparent" : "hidden"}`} onClick={() => { setIsCollapsableOpen(!isCollapsableOpen); }}></div>
 
             {/* user account button */}
             <button className="size-9 rounded-full cursor-pointer" onClick={() => { setIsCollapsableOpen(!isCollapsableOpen); }}>
