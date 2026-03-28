@@ -1,10 +1,122 @@
 function Home() {
 
+  const sponsors01 = [
+    {
+      url: "/images/sponsors/SVG.svg",
+      alt: "cocacola"
+    },
+    {
+      url: "/images/sponsors/SVG-1.svg",
+      alt: "cocacola"
+    },
+    {
+      url: "/images/sponsors/SVG-2.svg",
+      alt: "cocacola"
+    },
+    {
+      url: "/images/sponsors/SVG-3.svg",
+      alt: "cocacola"
+    },
+    {
+      url: "/images/sponsors/SVG-4.svg",
+      alt: "cocacola"
+    },
+    {
+      url: "/images/sponsors/SVG-5.svg",
+      alt: "cocacola"
+    }
+  ];
+
+  const sponsors02 = [{
+    url: "/images/sponsors/SVG-6.svg",
+    alt: "cocacola"
+  },
+  {
+    url: "/images/sponsors/SVG-7.svg",
+    alt: "cocacola"
+  },
+  {
+    url: "/images/sponsors/SVG-8.svg",
+    alt: "cocacola"
+  },
+  {
+    url: "/images/sponsors/SVG-9.svg",
+    alt: "cocacola"
+  },
+  {
+    url: "/images/sponsors/SVG-10.svg",
+    alt: "cocacola"
+  },];
+
   return (
     <>
-      Home Page
+      {/* Navbar */}
+      <nav className="container m-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center">
+          {/* Logo */}
+          <div className="flex items-center font-doto font-extrabold text-2xl gap-2 md:gap-3">
+            <div className="">
+              <svg width="59" height="40" viewBox="0 0 59 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-6 md:size-7 fill-accent">
+                <path d="M10 15.1533L56.0254 27.3643C57.7788 27.8295 59 29.4164 59 31.2305V40H49V35.8457L29.501 30.6729L10 35.8457V40H0V31.2305C4.53996e-06 29.4164 1.22118 27.8295 2.97461 27.3643L10.001 25.499L2.97461 23.6357C1.22116 23.1706 3.02567e-05 21.5836 0 19.7695V14C0 11.7909 1.79086 10 4 10H10V15.1533Z"></path>
+                <path d="M55 10C57.2091 10 59 11.7909 59 14V20H49V10H55Z"></path>
+                <path d="M45 0C47.2091 0 49 1.79086 49 4V10H10V4C10 1.79086 11.7909 2.81866e-08 14 0H45Z"></path>
+              </svg>
+            </div>
+            <span>
+
+              ARCTIC
+            </span>
+          </div>
+
+          {/* Links */}
+          <ul className="hidden md:flex text-lg font-medium space-x-6 ml-12 py-2 font-pixelify-sans">
+            <li>Solutions</li>
+            <li>Help</li>
+            <li>Pricing</li>
+          </ul>
+        </div>
+        <div className="flex items-center font-medium text-base gap-4 font-pixelify-sans">
+          <button className="hidden md:flex text-[#31373D] bg-white px-2 md:px-5 py-1 md:py-2 ring-1 ring-[#CDD3DB] rounded-xl text-sm md:text-base">Login</button>
+          <button className="text-white bg-accent px-2 md:px-5 py-1 md:py-2 ring-1 ring-[#505967] rounded-xl text-sm md:text-base">Register</button>
+        </div>
+      </nav>
+
+      <main className="">
+        {/* Hero */}
+        <section className="py-12 md:py-24 lg:py-32 bg-[#FBFBFB]">
+          <div className="container px-4 m-auto">
+            {/* heading */}
+            <h1 className="font-bold text-4xl mb-[19px] text-center md:text-6xl lg:text-[90px] flex items-center flex-col"><span>First choice </span> for indie devlopers.</h1>
+
+            {/* description */}
+            <p className="font-medium text-lg text-center text-[#31373D] lg:text-[22px] md:px-28 lg:px-40 xl:px-96">Make your servers ready for production with Arctic. Easy to manage servers, scale without any effort.</p>
+
+            {/* buttons */}
+            <div className="flex items-center flex-col gap-3 mt-8 font-medium md:flex-row justify-center">
+              <button className="text-white bg-accent px-4 md:px-4 py-2 md:py-[13px] ring-1 ring-[#505967] rounded-xl text-sm md:text-base">Get started with Arctic</button>
+              <button className="text-[#31373D] bg-white px-4 md:px-4 py-2 md:py-[13px] ring-1 ring-[#CDD3DB] rounded-xl text-sm md:text-base">Talk to sales</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Partners */}
+        <section className="bg-[#FBFBFB] pb-20">
+          <div className="container px-4 m-auto flex flex-col gap-2 lg:gap-y-[51px] items-center">
+            <div className="flex gap-6 lg:gap-16 overflow-x-scroll md:overflow-hidden justify-between">
+              {sponsors01.map((sponsor) => (
+                <img src={sponsor.url} alt={sponsor.alt} className="h-7 lg:h-10" />
+              ))}
+            </div>
+            <div className="flex gap-6 lg:gap-16 overflow-x-scroll md:overflow-hidden justify-between">
+              {sponsors02.map((sponsor) => (
+                <img src={sponsor.url} alt={sponsor.alt} className="h-7 lg:h-10" />
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;
