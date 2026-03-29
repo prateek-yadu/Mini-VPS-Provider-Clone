@@ -1,3 +1,5 @@
+import { Activity, Bolt, PackageOpen, Server } from "lucide-react";
+
 function Home() {
 
   const sponsors01 = [
@@ -111,6 +113,61 @@ function Home() {
               {sponsors02.map((sponsor) => (
                 <img src={sponsor.url} alt={sponsor.alt} className="h-7 lg:h-10" />
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Process Section */}
+        <section className="py-[80px] lg:py-[181px]">
+          <div className="container px-4 m-auto">
+
+            <div className="flex flex-row">
+              {/* Left Content */}
+              <div className="hidden lg:flex flex-col">
+                <img src="/images/logos/box.svg" alt="" className="size-12 mt-2" />
+                <div className="w-[2px] h-full self-center bg-linear-to-b from-white via-[#ECEDF0] to-white"></div>
+              </div>
+              {/* Right Content */}
+              <div className="flex-1">
+                <h2 className="flex flex-col items-start text-3xl font-bold md:text-4xl lg:text-[49px] pb-4 lg:ml-14"><span>Deploy on servers</span> that's trully your own.</h2>
+                <p className="text-[#31373D] font-medium text-base md:text-lg lg:text-[22px] sm:pr-20 md:pr-40 lg:pr-80 xl:pr-[640px] 2xl:pr-[800px] lg:ml-14">Deploy your applications on Arctic for low latency and high performance with cutting edge technologies.</p>
+
+                <div className="ring-1 ring-[#E4E5E9] rounded-[20px] px-4 pt-4 pb-0 mt-10 lg:mt-20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-6 xl:gap-8 gap-y-6 pb-16 lg:pt-9 p-4 lg:px-10">
+                    <div className="flex flex-col items-start gap-y-2">
+                      <div className="flex items-center text-[#24292F] gap-x-1">
+                        <span className=""><PackageOpen className="h-[19px]" /></span>
+                        <span className="text-[18px] font-semibold">Deploy</span>
+                      </div>
+                      <span className="text-[#57606A] font-medium">Deploy your server on Arctic with one click, easy fast and scallable with zero extra efforts.</span>
+                    </div>
+                    <div className="flex flex-col items-start gap-y-2">
+                      <div className="flex items-center text-[#99A2AF] gap-x-1">
+                        <span className=""><Bolt className="h-[19px]" /></span>
+                        <span className="text-[18px] font-semibold">Configure</span>
+                      </div>
+                      <span className="text-[#99A2AF] font-medium">Arctic provides a clean user interface for configuring and managing servers at large scale.</span>
+                    </div>
+                    <div className="flex flex-col items-start gap-y-2">
+                      <div className="flex items-center text-[#99A2AF] gap-x-1">
+                        <span className=""><Activity className="h-[19px]" /></span>
+                        <span className="text-[18px] font-semibold">Monitor</span>
+                      </div>
+                      <span className="text-[#99A2AF] font-medium">Arctic provides a clean dashboard for monitoring your servers and show detailed logs.</span>
+                    </div>
+                    <div className="flex flex-col items-start gap-y-2">
+                      <div className="flex items-center text-[#99A2AF] gap-x-1">
+                        <span className=""><Server className="h-[19px]" /></span>
+                        <span className="text-[18px] font-semibold">Scale</span>
+                      </div>
+                      <span className="text-[#99A2AF] font-medium">Scale your servers with Arctic's on demand scaling feature, exclusivly for enterprises.</span>
+                    </div>
+                  </div>
+                  <div className="h-[400px] md:h-[500px] bg-accent/10 lg:mx-10 rounded-tl-[20px] rounded-tr-[20px]"></div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </section>
