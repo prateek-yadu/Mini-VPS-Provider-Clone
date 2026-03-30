@@ -118,7 +118,7 @@ function Home() {
         </section>
 
         {/* Process Section */}
-        <section className="py-[80px] lg:py-[181px]">
+        <section className="py-[80px] lg:pt-[181px] lg:pb-[239px]">
           <div className="container px-4 m-auto">
 
             <div className="flex flex-row">
@@ -164,6 +164,61 @@ function Home() {
                     </div>
                   </div>
                   <div className="h-[400px] md:h-[500px] bg-accent/10 lg:mx-10 rounded-tl-[20px] rounded-tr-[20px]"></div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* features Section */}
+        <section className="pb-[80px] lg:pb-[181px]">
+          <div className="container px-4 m-auto">
+
+            <div className="flex flex-row">
+
+              {/* Left Content */}
+              <div className="hidden lg:flex flex-col">
+                <img src="/images/logos/box.svg" alt="" className="size-12 mt-2" />
+                <div className="w-[2px] h-full self-center bg-linear-to-b from-white via-[#ECEDF0] to-white"></div>
+              </div>
+
+              {/* Right Content */}
+              <div className="flex-1">
+                <h2 className="flex flex-col items-start text-3xl font-bold md:text-4xl lg:text-[49px] pb-4 lg:ml-14"><span>Scale your Business</span> with a click of a button.</h2>
+                <p className="text-[#31373D] font-medium text-base md:text-lg lg:text-[22px] sm:pr-20 md:pr-40 lg:pr-80 xl:pr-[640px] 2xl:pr-[800px] lg:ml-14">Arctic helps your Business to grow with one click setup and 24x7 support team to resolve your issues.</p>
+
+                <div className="pt-4 pb-0 mt-10 lg:mt-20">
+                  <div className="grid gap-6 lg:grid-cols-2">
+
+                    {/* box 1 */}
+                    <div className="h-[450px] lg:h-[504px] ring-1 ring-[#E4E5E9] rounded-[20px] lg:col-span-2 shadow-xs drop-shadow-xs grid grid-cols-1 p-8 pb-0 lg:grid-cols-2 lg:gap-20 lg:px-0 lg:pt-10">
+                      <div className="lg:ml-12 text-lg flex items-start gap-y-2 flex-col">
+                        <h4 className="font-semibold text-[#31373D]">Clean and minimal user interface.</h4>
+                        <p className="font-medium text-[#555E67]">Arctic provides a clean and minimal user inteface to manage you infrastructure and plans.</p>
+                      </div>
+                      <div className="bg-accent/20 lg:rounded-tl-[20px] lg:rounded-br-[20px] rounded-t-[20px] lg:rounded-tr-none"></div>
+                    </div>
+
+                    {/* box 2 */}
+                    <div className="h-[450px] lg:h-[540px] ring-1 ring-[#E4E5E9] rounded-[20px] shadow-xs drop-shadow-xs flex flex-col gap-[60px]">
+                      <div className="flex flex-col lg:mx-12 text-lg items-start gap-y-2 p-8 pb-0 lg:px-0 lg:pt-10">
+                        <h4 className="font-semibold text-[#31373D]">Secure your server with Arctics firewall.</h4>
+                        <p className="font-medium text-[#555E67]">On top of server's firewall if any Arctic provides its own firewall per server which can be configured from dashboard.</p>
+                      </div>
+                      <div className="bg-accent/20 flex-1 h-full rounded-t-none rounded-b-[20px] lg:rounded-tl-[20px] lg:rounded-bl-none lg:ml-12 lg:rounded-r-none lg:rounded-br-[20px]"></div>
+                    </div>
+
+                    {/* box 3 */}
+                    <div className="h-[450px] lg:h-[540px] ring-1 ring-[#E4E5E9] rounded-[20px] shadow-xs drop-shadow-xs flex flex-col gap-[60px] ">
+                      <div className="flex flex-col lg:mx-12 text-lg items-start gap-y-2 p-8 pb-0 lg:px-0 lg:pt-10">
+                        <h4 className="font-semibold text-[#31373D]">Automatic snapshots for enterprises.</h4>
+                        <p className="font-medium text-[#555E67]">We provide automatic snapshot feature to enterprises who are enrolled in plan which include snapshots.</p>
+                      </div>
+                      <div className="bg-accent/20 flex-1 h-full rounded-b-[20px] lg:rounded-b-[20px] lg:rounded-t-none"></div>
+                    </div>
+                  </div>
                 </div>
 
               </div>
