@@ -1,4 +1,4 @@
-import { Activity, Bolt, PackageOpen, Server } from "lucide-react";
+import { Activity, Bolt, ChevronLeft, ChevronRight, MoveLeft, MoveRight, PackageOpen, Server } from "lucide-react";
 
 function Home() {
 
@@ -287,6 +287,53 @@ function Home() {
                     <img src="/images/pattern_bottom.svg" alt="pattern_top" className="w-full" />
                   </div>
 
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* testimonials section */}
+        <section className="pb-[80px] lg:pb-[181px] mt-[100px]">
+          <div className="container px-4 m-auto">
+
+            <div className="flex flex-row">
+
+              {/* Left Content */}
+              <div className="hidden lg:flex flex-col">
+                <div className="w-12" />
+              </div>
+
+              {/* Right Content */}
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold md:text-4xl lg:text-[49px] pb-4 lg:ml-14">Loved by <span className="text-[#727B84]">Enterprises.</span></h2>
+                <p className="text-[#31373D] font-medium text-base md:text-lg lg:text-[22px] sm:pr-20 md:pr-40 lg:pr-80 xl:pr-[640px] 2xl:pr-[800px] lg:ml-14">Arctic is first choice for startups.</p>
+
+                <div className="pt-4 pb-0 mt-10 lg:mt-0">
+                  <div className="grid">
+
+                    {/* box 1 */}
+                    <div className=" grid grid-cols-1 py-8 pb-0 lg:grid-cols-2 lg:gap-20 lg:px-0 lg:py-10 lg:ml-14">
+                      <div className="flex items-start flex-col order-2 lg:order-1 mt-10">
+                        <div className="flex-1">
+                          <img src="/images/testimonials/dopt.svg" alt="" className="h-11" />
+                        </div>
+                        <div className="self-baseline flex gap-4 mt-4">
+                          <div className="text-[#31373D]"><ChevronLeft className="size-6"/></div>
+                          <div className="text-[#31373D]"><ChevronRight className="size-6"/></div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-y-4 md:gap-y-6 order-1 lg:order-2">
+                        <span className="font-medium text-[#555E67] text-lg md:text-2xl lg:text-[28px]">Arctic has played a crucial role in scaling our production servers with on demand scalling feature. It allows my team to easily monitor server and view logs.</span>
+                        <div className="flex flex-col">
+                          <span className="font-bold ml-3 text-sm md:text-base">DeGrasse Schrader</span>
+                          <span className="font-medium text-[#555E67] text-sm md:text-base">- Chief of Staff, Pallet</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
               </div>
