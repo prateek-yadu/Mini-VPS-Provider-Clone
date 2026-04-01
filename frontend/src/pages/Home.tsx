@@ -1,4 +1,5 @@
 import { Activity, Bolt, ChevronLeft, ChevronRight, MoveLeft, MoveRight, PackageOpen, Server } from "lucide-react";
+import { Link } from "react-router";
 
 function Home() {
 
@@ -321,8 +322,8 @@ function Home() {
                           <img src="/images/testimonials/dopt.svg" alt="" className="h-11" />
                         </div>
                         <div className="self-baseline flex gap-4 mt-4">
-                          <div className="text-[#31373D]"><ChevronLeft className="size-6"/></div>
-                          <div className="text-[#31373D]"><ChevronRight className="size-6"/></div>
+                          <div className="text-[#31373D]"><ChevronLeft className="size-6" /></div>
+                          <div className="text-[#31373D]"><ChevronRight className="size-6" /></div>
                         </div>
                       </div>
                       <div className="flex flex-col gap-y-4 md:gap-y-6 order-1 lg:order-2">
@@ -341,6 +342,117 @@ function Home() {
             </div>
           </div>
         </section>
+
+
+        <footer className="text-gray-600 body-font border-t border-[#99A2AF]/20 bg-[#99A2AF]/5">
+          <div className="container px-5 py-24 mx-auto flex md:items-center lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
+            <div className="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
+              <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
+                <svg width="59" height="40" viewBox="0 0 59 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-6 md:size-7 fill-accent">
+                  <path d="M10 15.1533L56.0254 27.3643C57.7788 27.8295 59 29.4164 59 31.2305V40H49V35.8457L29.501 30.6729L10 35.8457V40H0V31.2305C4.53996e-06 29.4164 1.22118 27.8295 2.97461 27.3643L10.001 25.499L2.97461 23.6357C1.22116 23.1706 3.02567e-05 21.5836 0 19.7695V14C0 11.7909 1.79086 10 4 10H10V15.1533Z"></path>
+                  <path d="M55 10C57.2091 10 59 11.7909 59 14V20H49V10H55Z"></path>
+                  <path d="M45 0C47.2091 0 49 1.79086 49 4V10H10V4C10 1.79086 11.7909 2.81866e-08 14 0H45Z"></path>
+                </svg>
+                <span className="ml-3 font-doto font-extrabold text-3xl">Arctic</span>
+              </a>
+              <p className="mt-2 text-sm text-primary font-medium">A go-to choice for indie devs around the globe.</p>
+            </div>
+            <div className="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 md:text-left text-center">
+              <div className="lg:w-1/4 md:w-1/2 w-full px-4">
+                <h2 className="font-bold font-pixelify-sans text-primary tracking-widest text-base mb-3">Status</h2>
+                <nav className="list-none mb-10">
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Site</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Server</a>
+                  </li>
+                </nav>
+              </div>
+              <div className="lg:w-1/4 md:w-1/2 w-full px-4">
+                <h2 className="font-bold font-pixelify-sans text-primary tracking-widest text-base mb-3">Sitemap</h2>
+                <nav className="list-none mb-10">
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Home</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Pricing</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Dashobard</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Register</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Login</a>
+                  </li>
+                </nav>
+              </div>
+              <div className="lg:w-1/4 md:w-1/2 w-full px-4">
+                <h2 className="font-bold font-pixelify-sans text-primary tracking-widest text-base mb-3">Arctic for</h2>
+                <nav className="list-none mb-10">
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Startups</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Enterprises</a>
+                  </li>
+                </nav>
+              </div>
+              <div className="lg:w-1/4 md:w-1/2 w-full px-4">
+                <h2 className="font-bold font-pixelify-sans text-primary tracking-widest text-base mb-3">Support</h2>
+                <nav className="list-none mb-10">
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Help center</a>
+                  </li>
+                  <li>
+                    <a className="text-[#555E67] hover:text-primary cursor-pointer">Talk to support</a>
+                  </li>
+                </nav>
+              </div>
+            </div>
+          </div>
+          <div className="text-[14px]">
+            <div className="container mx-auto py-5 px-5 flex flex-wrap flex-col sm:flex-row">
+              <p className="text-gray-500 text-center sm:text-left">© 2026 Arctic Corporation —
+                <Link to="https://github.com/prateek-yadu" rel="noopener noreferrer" className="text-accent font-medium ml-1" target="_blank">@prateek-yadu</Link>
+              </p>
+              <div className="flex flex-col gap-y-4 items-center mt-4 md:mt-0 md:flex-row flex-1 md:justify-end md:gap-y-0 md:gap-x-4">
+                <div className="">
+                  <ul className="flex gap-4">
+                    <li>Terms & Conditions</li>
+                    <li>Privacy Policy</li>
+                  </ul>
+                </div>
+                <span className="inline-flex sm:mt-0 mt-2 justify-center sm:justify-start">
+                  <a className="text-gray-500">
+                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" className="size-4" viewBox="0 0 24 24">
+                      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                    </svg>
+                  </a>
+                  <a className="ml-3 text-gray-500">
+                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" className="size-4" viewBox="0 0 24 24">
+                      <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                    </svg>
+                  </a>
+                  <a className="ml-3 text-gray-500">
+                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" className="size-4" viewBox="0 0 24 24">
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"></path>
+                    </svg>
+                  </a>
+                  <a className="ml-3 text-gray-500">
+                    <svg fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0" className="size-4" viewBox="0 0 24 24">
+                      <path stroke="none" d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                      <circle cx="4" cy="4" r="2" stroke="none"></circle>
+                    </svg>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </footer>
 
 
       </main>
