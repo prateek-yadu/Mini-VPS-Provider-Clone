@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Pixelify+Sans:wght@400..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+
 
 /* @custom-variant dark (&:is(.dark *));
 
@@ -121,14 +123,18 @@
 
 @theme {
   /* --color-primary: #404040; */
-  --color-primary: #171717;
+  --color-primary: #1D1E20;
   --color-secondary-foreground: #525252;
-  --color-accent: #394447;
+  --color-accent: #6C44FC;
   --color-primary-background: #fafafa;
   --color-border-primary: #e5e5e5;
   --color-muted: #757575;
+  --font-inter: "Inter", sans-serif;
+  --font-pixelify-sans: "Pixelify Sans", sans-serif;
+  --font-doto: "Doto", sans-serif;
 }
 
-html{
-  color: #171717;
+html {
+  color: #1D1E20;
+  @apply font-inter
 }
