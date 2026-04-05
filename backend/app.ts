@@ -6,6 +6,7 @@ import plans from "./routes/plans/plans.routes.js";
 import cookieParser from "cookie-parser";
 import 'dotenv/config';
 import { authMiddleware } from "./middleware/auth.middleware.js";
+import { limitModerate, limitStrict } from "./middleware/rate-limiter.middleware.js";
 
 const app = express();
 const port = 3000; // <-- TODO: Put it in .env file
@@ -13,17 +14,22 @@ const port = 3000; // <-- TODO: Put it in .env file
 app.use(express.json()); // <-- express js body parser
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
+app.get("/", limitModerate, (req, res) => {
   res.send("VPS Provider Project");
 });
 
-app.use("/api/v1/vms", authMiddleware, vmsRoutes);
+app.use("/api/v1/vms", authMiddleware, limitStrict, vmsRoutes);
 
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/auth", limitStrict, authRoutes);
 
-app.use("/api/v1/profile", authMiddleware, profileRoutes);
+app.use("/api/v1/profile", authMiddleware, limitModerate, profileRoutes);
 
-app.use("/api/v1/plans", plans);
+app.use("/api/v1/plans", limitModerate, plans);
+
+// handles non existing pages
+app.use(limitStrict, (req, res, next) => {
+  res.status(404).send("Sorry, can't find that!");
+});
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
