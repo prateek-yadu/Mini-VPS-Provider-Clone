@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { Request, Response } from "express";
 import send from "../utils/response/index.js";
-import { pool } from '../db/config.js';
+import { pool } from '../../lib/db.js';
 import jwt from 'jsonwebtoken';
 import { isVailedEmail, isVailedPassword, isVailedUsername } from '../utils/validators/index.js';
 import { logger } from '../utils/logger/logger.utils.js';

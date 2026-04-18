@@ -1,4 +1,4 @@
-import { pool } from "../db/config.js";
+import { pool } from "../../lib/db.js";
 import send from "../utils/response/response.js";
 import { Request, Response } from "express";
 import { isExpired } from "../utils/validators/planValidators.js";
