@@ -1,32 +1,16 @@
 import { Request, Response } from "express";
 import send from "../utils/response/response.js";
-import { pool } from "../db/config.js";
+import { pool } from "../../lib/db.js";
 import { v4 as uuidv4 } from 'uuid';
 import { validateVMName } from "../utils/validators/index.js";
 import { logger } from "../utils/logger/logger.utils.js";
-
-
-// TODO: Put every thing in try catch block
-// TODO: Add standard error and response logic
+import { instanceData } from "../interface/InstanceData.js";
+import { provisioningQueue } from "../queues/instance/provisioning.queue.js";
+import { lifecycleQueue } from "../queues/instance/lifecycle.queue.js";
+import { lifecycleQueueData } from "../interface/lifecycleQueueData.js";
 
 interface customRequest extends Request {
   id?: string;
-}
-
-interface instanceData {
-  id: string;
-  name?: string;
-  description?: string;
-  vCPU: number;
-  memory: number;
-  storage: number;
-  status?: string;
-  image?: string;
-  ipAddress: string;
-  userId?: string | undefined;
-  userPlanId?: string;
-  regionId?: string;
-  rootPassword?: string;
 }
 
 export const allVMs = async (req: customRequest, res: Response) => {
@@ -34,35 +18,10 @@ export const allVMs = async (req: customRequest, res: Response) => {
   try {
     const userId = req.id;
 
-    const [vm]: any = await pool.query('SELECT i.id, i.name, i.description, i.status, m.full_name AS image, p.ip, r.name AS region_name, r.code AS region_code, up.expires_at, pl.name AS plan, pl.vCPU, pl.memory, pl.storage, pl.backups FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN images m ON i.image_id=m.id INNER JOIN regions r ON i.region_id=r.id INNER JOIN user_plans up ON i.user_plan_id=up.id INNER JOIN plans pl ON up.plan_id=pl.id WHERE i.user_id=?', [userId]);
+    const [vm]: any = await pool.query('SELECT i.name, i.description, i.status, m.full_name AS image, p.ip, r.name AS region_name, r.code AS region_code, up.expires_at, pl.name AS plan, pl.vCPU, pl.memory, pl.storage, pl.backups FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN images m ON i.image_id=m.id INNER JOIN regions r ON i.region_id=r.id INNER JOIN user_plans up ON i.user_plan_id=up.id INNER JOIN plans pl ON up.plan_id=pl.id WHERE i.user_id=?', [userId]);
 
     if (vm.length != 0) {
-
-      let updatedVMData: any[] = [];
-      let i: number;
-
-      for (i = 0; i < vm.length; i++) {
-
-        const vmStatusReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vm[i].id}`)).json();
-
-        const VMstatusInDB = vm[i].status;
-        const VMstatusInLXD = vmStatusReq.data.metadata.status;
-
-        if (VMstatusInDB != VMstatusInLXD) {
-
-          const vmID = vm[i].id; // gets vm ID 
-
-          // update VM state in DB
-          const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', [VMstatusInLXD, vmID]);
-
-          vm[i].status = VMstatusInLXD;
-        }
-
-        vm[i].id = undefined; // prevent vmID to get exposed
-        updatedVMData.push(vm[i]);
-      };
-
-      send.ok(res, "", updatedVMData);
+      send.ok(res, "", vm);
     } else {
       send.notFound(res, "No VM Found.");
     }
@@ -80,28 +39,9 @@ export const getVM = async (req: customRequest, res: Response) => {
     const userId = req.id;
     const vmName = req.params.vmId;
 
-    const [vm]: any = await pool.query('SELECT i.id, i.name, i.description, i.status, m.full_name AS image, p.ip, r.name AS region_name, r.code AS region_code, up.expires_at, pl.name AS plan, pl.vCPU, pl.memory, pl.storage, pl.backups FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN images m ON i.image_id=m.id INNER JOIN regions r ON i.region_id=r.id INNER JOIN user_plans up ON i.user_plan_id=up.id INNER JOIN plans pl ON up.plan_id=pl.id WHERE i.name=? AND i.user_id=?', [vmName, userId]);
+    const [vm]: any = await pool.query('SELECT i.name, i.description, i.status, m.full_name AS image, p.ip, r.name AS region_name, r.code AS region_code, up.expires_at, pl.name AS plan, pl.vCPU, pl.memory, pl.storage, pl.backups FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN images m ON i.image_id=m.id INNER JOIN regions r ON i.region_id=r.id INNER JOIN user_plans up ON i.user_plan_id=up.id INNER JOIN plans pl ON up.plan_id=pl.id WHERE i.name=? AND i.user_id=?', [vmName, userId]);
 
     if (vm.length != 0) {
-      const vmStatusReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vm[0].id}`)).json();
-
-      const VMstatusInDB = vm[0].status;
-      const VMstatusInLXD = vmStatusReq.data.metadata.status;
-
-      if (VMstatusInDB != VMstatusInLXD) {
-
-        const vmID = vm[0].id; // gets vm ID 
-
-        // update state in DB
-        const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', [VMstatusInLXD, vmID]);
-
-        vm[0].id = undefined; // prevent vmID to get exposed
-        vm[0].status = VMstatusInLXD;
-        return send.ok(res, "", vm[0]);
-      }
-
-      // prevent vmID to get exposed
-      vm[0].id = undefined;
       send.ok(res, "", vm[0]);
     } else {
       send.notFound(res, "VM not found by this name.");
@@ -202,15 +142,10 @@ export const createVM = async (req: customRequest, res: Response) => {
                 rootPassword: rootPassword
               };
 
-              const vmCreationRequest: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(vmData)
-              })).json();
+              // sends to provisioning queue
+              const queueReq = await provisioningQueue(vmData);
 
-              if (vmCreationRequest.status === 200) {
+              if (queueReq === "waiting" || queueReq === "active") {
 
                 // set current ip in_use to true
                 const [reserveIP, fields]: any = await pool.query('UPDATE ip_addresses SET in_use=1 WHERE id=?', [assignableIPId]);
@@ -220,16 +155,16 @@ export const createVM = async (req: customRequest, res: Response) => {
 
                 // NOTE: images and region are not yet been implementaed so its not fuctional (image and region is decided by lxd_agent)
 
-                const [instance, instanceFields]: any = await pool.query('INSERT INTO instances (id, name, description, status, image_id, address_id, user_id, user_plan_id, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [vmID, vmName, vmDescription, "Provisioning", 1, ip[0].id, userId, planId, 1]);
+                const [instance, instanceFields]: any = await pool.query('INSERT INTO instances (id, name, description, status, image_id, address_id, user_id, user_plan_id, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [vmID, vmName, vmDescription, "provisioning", 1, ip[0].id, userId, planId, 1]);
 
-                logger.log("instance", { ip: req.ip, message: `VM created successfully`, type: "success", route: "POST /vms", userId: req.id });
+                logger.log("instance", { ip: req.ip, message: `Provisioning Instance`, type: "success", route: "POST /vms", userId: req.id });
 
-                send.ok(res, "VM Created Successfully");
+                send.ok(res, "Provisioning Instance");
               } else {
 
-                logger.log("instance", { ip: req.ip, message: `VM creation failed`, type: "error", route: "POST /vms", userId: req.id });
+                logger.log("instance", { ip: req.ip, message: `VM Provision failed`, type: "error", route: "POST /vms", userId: req.id });
 
-                // error coz VM creation might have failed
+                // error coz queue related problem
                 send.internalError(res);
               }
             }
@@ -277,42 +212,28 @@ export const startVM = async (req: customRequest, res: Response) => {
         send.forbidden(res, "Can not perform any action plan expired.");
       } else {
 
-        // checks db status in lxd
-        const vmStatusReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}`)).json();
-
-        const VMstatusInDB = vmExists[0].status;
-        const VMstatusInLXD = vmStatusReq.data.metadata.status;
-
-        if (VMstatusInDB != VMstatusInLXD) {
-
-          // update state in DB
-          const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', [VMstatusInLXD, vmId]);
-
-          vmExists[0].id = undefined; // prevent vmID to get exposed
-          vmExists[0].status = VMstatusInLXD;
-        }
-
-        if (VMstatusInLXD === "Running") {
+        if (vmStatus === "running") {
 
           logger.log("instance", { ip: req.ip, message: `Can not start, VM already running`, type: "info", route: "PUT /vms/:vmId/start", userId: req.id, vmId: vmId });
 
           send.badRequest(res, "VM is already Running.");
         } else {
-          const vmStartReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}/start`, {
-            method: "PUT"
-          })).json();
 
-          if (vmStartReq.status === 200) {
-            // update state in DB
-            const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', ["Running", vmId]);
+          // data required by queue
+          const queueData: lifecycleQueueData = { name: vmId, operation: "start" };
 
-            logger.log("instance", { ip: req.ip, message: `VM Started`, type: "info", route: "PUT /vms/:vmId/start", userId: req.id, vmId: vmId });
+          // sends to lifecycle queue
+          const queueReq = await lifecycleQueue(queueData);
 
-            send.ok(res, "VM started successfully");
+          if (queueReq === "waiting" || queueReq === "active") {
+
+            logger.log("instance", { ip: req.ip, message: `Starting VM`, type: "info", route: "PUT /vms/:vmId/start", userId: req.id, vmId: vmId });
+
+            send.ok(res, "Starting VM");
           } else {
 
             logger.log("instance", { ip: req.ip, message: `Internal error`, type: "error", route: "PUT /vms/:vmId/start" });
-            
+
             send.internalError(res);
           }
         }
@@ -358,42 +279,28 @@ export const stoptVM = async (req: customRequest, res: Response) => {
         send.forbidden(res, "Can not perform any action plan expired.");
       } else {
 
-        // checks db status in lxd
-        const vmStatusReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}`)).json();
 
-        const VMstatusInDB = vmExists[0].status;
-        const VMstatusInLXD = vmStatusReq.data.metadata.status;
-
-        if (VMstatusInDB != VMstatusInLXD) {
-
-          // update state in DB
-          const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', [VMstatusInLXD, vmId]);
-
-          vmExists[0].id = undefined; // prevent vmID to get exposed
-          vmExists[0].status = VMstatusInLXD;
-        }
-
-        if (VMstatusInLXD === "Stopped") {
+        if (vmStatus === "stopped") {
 
           logger.log("instance", { ip: req.ip, message: `Can not stop VM, already Stopped`, type: "info", route: "PUT /vms/:vmId/stop", userId: req.id, vmId: vmId });
 
           send.badRequest(res, "VM is already Stopped.");
         } else {
-          const vmStopReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}/stop`, {
-            method: "PUT"
-          })).json();
 
-          if (vmStopReq.status === 200) {
-            // update state in DB
-            const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', ["Stopped", vmId]);
+          // data required by queue
+          const queueData: lifecycleQueueData = { name: vmId, operation: "stop" };
 
-            logger.log("instance", { ip: req.ip, message: `VM Stopped successfully`, type: "info", route: "PUT /vms/:vmId/stop", userId: req.id, vmId: vmId });
+          // sends to lifecycle queue
+          const queueReq = await lifecycleQueue(queueData);
 
-            send.ok(res, "VM Stopped successfully.");
+          if (queueReq === "waiting" || queueReq === "active") {
+
+            logger.log("instance", { ip: req.ip, message: `Stoppping VM`, type: "info", route: "PUT /vms/:vmId/stop", userId: req.id, vmId: vmId });
+
+            send.ok(res, "Stopping VM.");
           } else {
 
             logger.log("instance", { ip: req.ip, message: `Internal error`, type: "error", route: "PUT /vms/:vmId/stop" });
-
             send.internalError(res);
           }
         }
@@ -437,17 +344,20 @@ export const restartVM = async (req: customRequest, res: Response) => {
 
         send.forbidden(res, "Can not perform any action plan expired.");
       } else {
-        if (vmStatus === "Stopped") {
+        if (vmStatus === "stopped") {
 
           logger.log("instance", { ip: req.ip, message: `Cannot restart VM, VM not running`, type: "info", route: "PUT /vms/:vmId/restart", userId: req.id, vmId: vmId });
 
           send.badRequest(res, "VM is not Running.");
         } else {
-          const vmRestartReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}/restart`, {
-            method: "PUT"
-          })).json();
 
-          if (vmRestartReq.status === 200) {
+          // data required by queue
+          const queueData: lifecycleQueueData = { name: vmId, operation: "restart" };
+
+          // sends to lifecycle queue
+          const queueReq = await lifecycleQueue(queueData);
+
+          if (queueReq === "waiting" || queueReq === "active") {
 
             logger.log("instance", { ip: req.ip, message: `Restarting VM`, type: "info", route: "PUT /vms/:vmId/restart", userId: req.id, vmId: vmId });
 
@@ -502,54 +412,27 @@ export const destroyVM = async (req: customRequest, res: Response) => {
         send.forbidden(res, "Can not perform any action plan expired.");
       } else {
 
-        // checks db status in lxd
-        const vmStatusReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance/${vmId}`)).json();
-
-        const VMstatusInDB = vmExists[0].status;
-        const VMstatusInLXD = vmStatusReq.data.metadata.status;
-
-        if (VMstatusInDB != VMstatusInLXD) {
-
-          // update state in DB
-          const [updateState]: any = await pool.query('UPDATE instances SET status=? WHERE id=?', [VMstatusInLXD, vmId]);
-
-          vmExists[0].id = undefined; // prevent vmID to get exposed
-          vmExists[0].status = VMstatusInLXD;
-        }
-
-        if (VMstatusInLXD !== "Stopped") {
+        if (vmStatus !== "stopped") {
 
           logger.log("instance", { ip: req.ip, message: `Cannot destroy VM while running, Stop VM`, type: "info", route: "DELETE /vms/:vmId", userId: req.id, vmId: vmId });
 
           send.badRequest(res, "Stop the VM first");
         } else {
 
-          // send data to lxd agent to delete VM
-          const vmDeletetionReq: any = await (await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id: vmId })
-          })).json();
+          // data required by queue
+          const queueData: lifecycleQueueData = { name: vmId, operation: "delete", instanceIPID: vmIPId, planId: planId };
 
-          if (vmDeletetionReq.status === 200) {
-            // delete data from instance table
-            const [deleteVM]: any = await pool.query('DELETE FROM instances WHERE id=?', [vmId]);
+          // sends to lifecycle queue
+          const queueReq = await lifecycleQueue(queueData);
 
-            // release user plan from in_use
-            const [releaseUserPlan]: any = await pool.query('UPDATE user_plans SET in_use=0 WHERE id=?', [planId]);
+          if (queueReq === "waiting" || queueReq === "active") {
 
-            // release reserved IP
-            const [releaseIP]: any = await pool.query('UPDATE ip_addresses SET in_use=0 WHERE id=?', [vmIPId]);
+            logger.log("instance", { ip: req.ip, message: `deleting vm`, type: "info", route: "DELETE /vms/:vmId", userId: req.id, vmId: vmId });
 
-            logger.log("instance", { ip: req.ip, message: `VM deleted`, type: "info", route: "DELETE /vms/:vmId", userId: req.id, vmId: vmId });
-
-            send.ok(res, "VM deleted successfully.");
+            send.ok(res, "deleting vm.");
           } else {
 
             logger.log("instance", { ip: req.ip, message: `Internal error`, type: "error", route: "DELETE /vms/:vmId" });
-
             send.internalError(res);
           }
         }
