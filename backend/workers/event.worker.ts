@@ -39,7 +39,7 @@ socket.addEventListener('message', async (event) => {
             }
 
             // sends to redis pub/sub
-            redis.publish('instance-events', JSON.stringify({
+            redis.publish(process.env.REDIS_PUBSUB_INSTANCE_EVENT_CHANNEL || 'instance-events', JSON.stringify({
                 instance,
                 operation
             }));
