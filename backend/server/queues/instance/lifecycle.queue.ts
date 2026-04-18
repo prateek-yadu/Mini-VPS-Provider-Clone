@@ -1,9 +1,9 @@
 import { Queue } from "bullmq";
 import { connection } from "../queue.config.js";
-import { lifecycleQueueData } from "../../types/lifecycleQueueData.js";
+import { lifecycleQueueData } from "../../interface/lifecycleQueueData.js";
 
 // creates new queue
-const queue = new Queue("instance-lifecycle", connection);
+const queue = new Queue(process.env.REDIS_LIFECYCLE_QUEUE || 'instance-lifecycle', connection);
 
 // init queue
 export const lifecycleQueue = async (instance: lifecycleQueueData) => {
