@@ -7,10 +7,9 @@ import { pool } from "../lib/db.ts";
 
 config({ path: "../.env" });
 
-const worker = new Worker(process.env.REDIS_LIFECYCLE_QUEUE || '', async (job: Job) => {
+const worker = new Worker(process.env.REDIS_LIFECYCLE_QUEUE || 'instance-lifecycle', async (job: Job) => {
 
     try {
-
 
         switch (job.data.operation) {
             case "start":
