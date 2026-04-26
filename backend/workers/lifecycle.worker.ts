@@ -61,6 +61,7 @@ const worker = new Worker(process.env.REDIS_LIFECYCLE_QUEUE || 'instance-lifecyc
                     method: "GET"
                 })).json();
 
+                // handles db cleanup in instsance is not in LXD server
                 if (getInstanceReq.status === 404) {
                     // cleanup
 
@@ -108,7 +109,7 @@ const worker = new Worker(process.env.REDIS_LIFECYCLE_QUEUE || 'instance-lifecyc
 
 
     } catch (error: any) {
-        throw new Error("Instance creation failed, Reason:", error);
+        throw new Error("Instance operation failed, Reason:", error);
     }
 
 }, redisConnection);
