@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import send from "../utils/response/response.js";
-import { pool } from "../db/config.js";
+import { pool } from "../../lib/db.js";
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from "../utils/logger/logger.utils.js";
 

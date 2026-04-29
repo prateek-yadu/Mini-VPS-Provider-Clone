@@ -85,6 +85,8 @@ export const getIndivisualInstance = async (req: Request, res: Response) => {
 
             if (lxdResponse.status_code === 200) {
                 send.ok(res, "", lxdResponse);
+            } else if (lxdResponse.error_code === 404) {
+                send.notFound(res);
             } else {
                 send.internalError(res);
             }
@@ -192,6 +194,8 @@ export const destroyInstance = async (req: Request, res: Response) => {
 
             if (lxdResponse.status_code === 100) {
                 send.ok(res);
+            } else if (lxdResponse.error_code === 404) {
+                send.notFound(res, "instance not found");
             } else {
                 send.internalError(res);
             }

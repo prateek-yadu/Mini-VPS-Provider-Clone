@@ -1,5 +1,8 @@
 import mysql from 'mysql2/promise';
-import 'dotenv/config'
+import { config } from "dotenv";
+import 'dotenv/config';
+
+config({ path: "../.env" });
 
 export const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -12,6 +15,6 @@ export const pool = mysql.createPool({
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
-    port: typeof(process.env.DB_PORT) == "string" && parseInt(process.env.DB_PORT) || 3306,
+    port: typeof (process.env.DB_PORT) == "string" && parseInt(process.env.DB_PORT) || 3306,
     password: process.env.DB_PASSWD
 });
