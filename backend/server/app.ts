@@ -75,7 +75,7 @@ app.use("/api/v1/profile", authMiddleware, limitModerate, profileRoutes);
 app.use("/api/v1/plans", limitModerate, plans);
 
 // handles health route
-app.use("/health", healthRoute);
+app.use("/api/v1/health", healthRoute);
 
 // handles non existing pages
 app.use(limitStrict, (req, res, next) => {
