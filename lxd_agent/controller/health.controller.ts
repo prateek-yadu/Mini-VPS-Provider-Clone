@@ -44,10 +44,7 @@ export const shallowHealth = async (req: Request, res: Response) => {
     // assumes server is down
     const health = {
       health: "Critical",
-      services: {
-        lxd_agent: "OK",
-        lxd_server: "DOWN",
-      },
+      uptime: process.uptime(), // sends uptime in seconds
       lastCheck: Date.now(),
     };
 
@@ -76,6 +73,7 @@ export const deepHealth = async (req: Request, res: Response) => {
         lxd_agent: "OK",
         lxd_server: serverHealth,
       },
+      uptime: process.uptime(), // sends uptime in seconds
       lastCheck: Date.now(),
     };
 
@@ -87,6 +85,7 @@ export const deepHealth = async (req: Request, res: Response) => {
         lxd_agent: "OK",
         lxd_server: "DOWN",
       },
+      uptime: process.uptime(), // sends uptime in seconds
       lastCheck: Date.now(),
     };
 
