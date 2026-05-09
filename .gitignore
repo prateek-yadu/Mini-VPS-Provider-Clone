@@ -1,6 +1,7 @@
 
 # Persistent data
 __deploy__/mysql/data
+__deploy__/redis/data
 
 # Nginx Certificates
 __deploy__/nginx/certificates/*.key
