@@ -1,4 +1,7 @@
 
+# Persistent data
+__deploy__/mysql/data
+
 # Nginx Certificates
 __deploy__/nginx/certificates/*.key
 __deploy__/nginx/certificates/*.crt
