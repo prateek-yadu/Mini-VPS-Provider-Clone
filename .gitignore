@@ -1,3 +1,10 @@
+
+# Nginx Certificates
+__deploy__/nginx/certificates/*.key
+__deploy__/nginx/certificates/*.crt
+
+# Backend
+
 backend/node_modules
 backend/logs
 backend/dist
