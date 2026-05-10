@@ -25,6 +25,16 @@ services:
       - 3306:3306
       - 33060:33060
 
+  cache:
+    image: redis:alpine3.23
+    container_name: redis
+    volumes:
+      - ./__deploy__/redis/data:/data
+    environment:
+      - REDIS_ARGS=--appendonly yes
+    ports:
+      - 6379:6379
+
   # Monitoring
   scraper:
     image: grafana/alloy:${GRAFANA_ALLOY_VERSION:-v1.16.0}
