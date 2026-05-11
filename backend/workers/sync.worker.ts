@@ -2,10 +2,11 @@ import { config } from "dotenv";
 import { pool } from "../lib/db.js";
 import { lifecycleQueue } from "../server/queues/instance/lifecycle.queue.js";
 import { Redis } from "ioredis";
+import { redisConnection } from "../lib/redis.js";
 
 config({ path: "../.env" });
 
-const redis = new Redis();
+const redis = new Redis(redisConnection.connection);
 
 const sleep = (sec: number) =>
   new Promise((resolve) => setTimeout(resolve, sec * 1000));
