@@ -1,8 +1,11 @@
 import { config } from "dotenv";
 import { pool } from "../lib/db.js";
 import { lifecycleQueue } from "../server/queues/instance/lifecycle.queue.js";
+import { Redis } from "ioredis";
 
 config({ path: "../.env" });
+
+const redis = new Redis();
 
 const sleep = (sec: number) =>
   new Promise((resolve) => setTimeout(resolve, sec * 1000));
@@ -109,9 +112,9 @@ const deleteInstance = async (instanceId: string) => {
       // logo deleted instance
       console.log(`deleted instance: ${instanceId}`);
     }
-  } catch (error:any) {
+  } catch (error: any) {
     // log error
-    console.log(error)
+    console.log(error);
     console.log("can not delete instance");
   }
 };
@@ -174,7 +177,16 @@ const syncWorker = async () => {
   }
 };
 
+const sendHealthStatus = async () => {
+  const payload = {
+    status: "OK",
+    lastCheck: Date.now(),
+  };
+  await redis.set("health:workers:sync-worker", JSON.stringify(payload), "EX", 25);
+};
+
 while (true) {
+  sendHealthStatus();
   syncWorker();
   await sleep(10);
 }
