@@ -1,7 +1,15 @@
 import { pool } from "../lib/db.js";
+import { lifecycleQueue } from "../server/queues/instance/lifecycle.queue.js";
 import { isExpired } from "../server/utils/validators/planValidators.js";
 
+const getExpiredHrs = (expiredDate: Date) => {
+  const currentDate = new Date();
 
+  // @ts-ignore
+  const hrDiff = Math.floor(Math.abs(currentDate - expiredDate) / 36e5);
+  // 36e5 => 60*60*1000
+  return hrDiff;
+};
 
 const sleep = (sec: number) =>
   new Promise((resolve) => setTimeout(resolve, sec * 1000));
@@ -9,7 +17,7 @@ const sleep = (sec: number) =>
 const getExpiredInstance = async () => {
   try {
     const [instnaces]: any = await pool.query(
-      "SELECT i.id, i.name, i.description, i.status, m.full_name AS image, p.ip, r.name AS region_name, r.code AS region_code, up.expires_at, pl.name AS plan, pl.vCPU, pl.memory, pl.storage, pl.backups FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN images m ON i.image_id=m.id INNER JOIN regions r ON i.region_id=r.id INNER JOIN user_plans up ON i.user_plan_id=up.id INNER JOIN plans pl ON up.plan_id=pl.id",
+      "SELECT i.id, i.status, p.id AS ip_id, up.id AS plan_id, up.expires_at FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN user_plans up ON i.user_plan_id=up.id",
     );
 
     const expiredInstnaceList: any = [];
@@ -35,10 +43,9 @@ const stopInstance = async (instanceId: string) => {
       { method: "PUT" },
     );
 
-    if(!(instanceStopReq.status == 200)){
-        throw new Error("can not stop instance")
+    if (!(instanceStopReq.status == 200)) {
+      throw new Error("can not stop instance");
     }
-
   } catch (error: any) {
     throw new Error("can not stop instance", error);
   }
@@ -51,9 +58,45 @@ const stopExpiredIstances = async () => {
   if (list.length > 0) {
     // stop instance
     for (const instance of list) {
-      stopInstance(instance.id);
+      await stopInstance(instance.id);
     }
   }
+};
+
+const sendTODeletionQueue = async (instance: any) => {
+  const queueData: any = {
+    name: instance.id,
+    operation: "delete",
+    instanceIPID: instance.ip_id,
+    planId: instance.plan_id,
+  };
+
+  // sends to lifecycle queue
+  const queueReq = await lifecycleQueue(queueData);
+
+  if (queueReq === "waiting" || queueReq === "active") {
+    return;
+  } else {
+    // log error
+    throw new Error("Error deleting instance from redis side");
+  }
+};
+
+const removeExpiredInstance = async () => {
+  // get all expired instances
+  const list: any = await getExpiredInstance();
+
+  // remove instance if plan expired more than 48 hrs
+  if (list.length > 0) {
+    for (const instance of list) {
+      const hours: number = getExpiredHrs(instance.expires_at);
+      if (hours > 42) {
+        // remove instance
+        await sendTODeletionQueue(instance);
+      }
+    }
+  }
+  console.log("Expired instance", list);
 };
 
 const expiryWorker = async () => {
@@ -62,6 +105,7 @@ const expiryWorker = async () => {
     await stopExpiredIstances();
 
     // remove expired instances in age is > 48 hrs
+    await removeExpiredInstance();
   } catch (error: any) {
     console.log("Error", error.message);
   }
