@@ -1,6 +1,11 @@
+import {Redis} from "ioredis";
 import { pool } from "../lib/db.js";
 import { lifecycleQueue } from "../server/queues/instance/lifecycle.queue.js";
 import { isExpired } from "../server/utils/validators/planValidators.js";
+import { redisConnection } from "../lib/redis.js";
+
+const redis = new Redis(redisConnection.connection);
+
 
 const getExpiredHrs = (expiredDate: Date) => {
   const currentDate = new Date();
@@ -111,7 +116,21 @@ const expiryWorker = async () => {
   }
 };
 
+const sendHealthStatus = async () => {
+  const payload = {
+    status: "OK",
+    lastCheck: Date.now(),
+  };
+  await redis.set(
+    "health:workers:expiry-worker",
+    JSON.stringify(payload),
+    "EX",
+    25,
+  );
+};
+
 while (true) {
+  await sendHealthStatus();
   await expiryWorker();
   await sleep(10);
 }
