@@ -112,7 +112,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       {/* sidebar */}
       <Sidebar headerLinks={links} footerLinks={footerLinks} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 

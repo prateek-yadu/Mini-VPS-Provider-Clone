@@ -31,17 +31,19 @@ export default function Sidebar({ headerLinks, footerLinks, isOpen, setIsOpen }:
     return (
         <>
             {/* desktop sidebar */}
-            <aside className="hidden lg:block min-h-screen bottom-0 bg-white lg:w-[26%] xl:w-[22%] 2xl:w-[15%] p-4 relative">
+            <aside className="hidden lg:block h-screen sticky bottom-0 top-0 bg-white lg:w-[26%] xl:w-[22%] 2xl:w-[15%] p-4">
 
                 {/* App title */}
-                <h2 className="logo font-semibold text-xl text-primary text-center">{appName}</h2>
+                <h2 className="font-semibold text-xl text-primary px-4 flex items-center gap-3"> <span className="size-8"><img src="/brandIcon.svg" alt="brand icon" className="object-center" /></span> {appName}</h2>
 
+                <span className="text-muted uppercase text-xs font-medium mt-8 block mb-3 px-4">Overview</span>
                 {/* Dashboard links */}
-                <ul className="mt-6 space-y-1">
+                <ul className="space-y-1">
                     {headerLinks.map((link, index) => (
-                        <li key={index}>
-                            <Link to={link.href} className={`flex items-center gap-2 hover:text-accent hover:bg-accent/[12%] py-3 px-4 rounded text-sm ${fullURLPath === link.href ? "text-accent bg-accent/[12%] font-medium" : "text-secondary-foreground"}`}>
-                                <link.icon className="size-5" />
+                        <li key={index} className="relative">
+                            <div className={`absolute top-0 bottom-0 w-[4px] bg-none ${fullURLPath===link.href&& "bg-accent"} `}/>
+                            <Link to={link.href} className={`flex items-center gap-2 hover:text-accent hover:bg-accent/[4%] py-3 px-4 rounded text-sm ${fullURLPath === link.href ? "text-accent bg-accent/[4%] font-medium" : "text-secondary-foreground"}`}>
+                                <link.icon className={`size-5`}/>
                                 {link.name}
                             </Link>
                         </li>
@@ -53,7 +55,7 @@ export default function Sidebar({ headerLinks, footerLinks, isOpen, setIsOpen }:
                     <ul className="flex flex-col">
                         {footerLinks.map((link, index) => (
                             <li key={index}>
-                                <Link to={link.href} className="flex items-center gap-2 text-primary hover:text-accent py-3 px-4 text-sm">
+                                <Link to={link.href} className="flex items-center gap-2 text-muted hover:text-primary py-3 px-4 text-sm">
                                     <link.icon className="size-5" />
                                     {link.name}
                                 </Link>
