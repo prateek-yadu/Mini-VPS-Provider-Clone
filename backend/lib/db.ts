@@ -5,6 +5,7 @@ import 'dotenv/config';
 config({ path: "../.env" });
 
 export const pool = mysql.createPool({
+    timezone: 'Z' ,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     database: process.env.DB_NAME,

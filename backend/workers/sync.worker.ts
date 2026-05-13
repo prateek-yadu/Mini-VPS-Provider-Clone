@@ -11,7 +11,16 @@ const redis = new Redis(redisConnection.connection);
 const sleep = (sec: number) =>
   new Promise((resolve) => setTimeout(resolve, sec * 1000));
 
-const getAllInstanceFromServer = async () => {
+const getMins = (date: Date) => {
+  const currentDate = new Date();
+
+  // @ts-ignore
+  const minDiff = Math.floor(Math.abs(currentDate - date) / (1000 * 60));
+
+  return minDiff;
+};
+
+const instnaceFromServer = async () => {
   try {
     const req: any = await fetch(
       `${process.env.LXD_AGENT_SERVER}/api/v1/instance`,
@@ -23,74 +32,96 @@ const getAllInstanceFromServer = async () => {
       const instances = new Map();
 
       for (const instance of data.data.metadata) {
-        instances.set(instance.name, instance.status.toLowerCase());
+        instances.set(instance.name, JSON.stringify(instance));
       }
       return instances;
     } else {
       // log error
       console.log("Something went wrong");
     }
-  } catch (error: any) {
-    // log error
-    console.log(error.message);
+  } catch (error) {
+    throw new Error("failed to fetch instance list from server");
   }
 };
 
-const getAllInstanceFromDB = async () => {
+const instnaceFromDB = async () => {
   try {
     const [allInstance]: any = await pool.query(
-      "SELECT id, status FROM instances",
+      "SELECT i.id, i.status, i.created_at, p.id AS ip_id, up.id AS plan_id FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id INNER JOIN user_plans up ON i.user_plan_id=up.id",
     );
+
     const instances = new Map();
 
     if (allInstance.length > 0) {
       for (const instance of allInstance) {
-        instances.set(instance.id, instance.status.toLowerCase());
+        instances.set(instance.id, JSON.stringify(instance));
       }
     }
     return instances;
-  } catch (error: any) {
-    // log error
-    console.log(error.message);
+  } catch (error) {
+    throw new Error("failed to fetch instance list from database");
   }
 };
 
-const sendToDeleteQueue = async (instanceId: string) => {
+const sendTODeletionQueue = async (instance: any) => {
   try {
-    // get instance info
-    const [instanceInfo]: any = await pool.query(
-      "SELECT i.id AS vm_id, p.id AS ip_id, i.name, i.user_id, i.status, p.ip, i.user_plan_id FROM instances i INNER JOIN ip_addresses p ON i.address_id=p.id WHERE i.id=?",
-      [instanceId],
-    );
+    // store instance info
+    const planId = instance.plan_id;
+    const vmId = instance.id;
+    const vmIPId = instance.ip_id;
 
-    if (instanceInfo.length != 0) {
-      // store user info
-      const planId = instanceInfo[0]?.user_plan_id;
-      const vmId = instanceInfo[0]?.vm_id;
-      const vmIPId = instanceInfo[0]?.ip_id;
+    // send data to queue for deletiong
+    const queueData: any = {
+      name: vmId,
+      operation: "delete",
+      instanceIPID: vmIPId,
+      planId: planId,
+    };
 
-      // send data to queue for deletiong
-      const queueData: any = {
-        name: vmId,
-        operation: "delete",
-        instanceIPID: vmIPId,
-        planId: planId,
-      };
+    // sends to lifecycle queue
+    const queueReq = await lifecycleQueue(queueData);
 
-      // sends to lifecycle queue
-      const queueReq = await lifecycleQueue(queueData);
+    if (queueReq === "waiting" || queueReq === "active") {
+      return;
+    } else {
+      throw new Error("Error deleting instance");
+    }
+  } catch (error) {
+    throw new Error("Error deleting instance");
+  }
+};
 
-      if (queueReq === "waiting" || queueReq === "active") {
-        return;
-      } else {
-        // log error
-        console.log("Error deleting instance from redis side");
-        return;
+const syncState = async (dbList: any, serverList: any) => {
+  // sync
+  for (const instance of dbList) {
+    const parsedDBData = await JSON.parse(instance[1]);
+
+    // checks if instance exists on server
+    if (serverList.get(instance[0])) {
+      const parsedServerData = await JSON.parse(serverList.get(instance[0]));
+
+      const statusInDB = parsedDBData.status;
+      const statusInServer = parsedServerData.status.toLowerCase();
+
+      if (statusInDB !== statusInServer) {
+        // update state in db
+        const [updateStateInDB]: any = await pool.query(
+          "UPDATE instances SET status=? WHERE id=?",
+          [statusInServer, instance[0]],
+        );
+      }
+    } else {
+      // executes when records does not exists on server
+      // remove records from db
+
+      // gets instance created hours before
+      const createdMins = getMins(new Date(parsedDBData.created_at));
+
+      // check if instance created_at is < 1 hr or not
+      if (createdMins > 15) {
+        await sendTODeletionQueue(parsedDBData); // else
       }
     }
-  } catch (error: any) {
-    // log error
-    console.log(error.message);
   }
 };
 
@@ -103,9 +134,9 @@ const stopInstance = async (instanceId: string) => {
   ).json();
 };
 
-const deleteInstance = async (instanceId: string, instanceStatus: string) => {
+const deleteInstance = async (instance: any) => {
   try {
-    if (instanceStatus === "stopped") {
+    if (instance.status.toLowerCase() === "stopped") {
       // call lxd agent and remove instance
       const instanceDeletetionReq: any = await (
         await fetch(`${process.env.LXD_AGENT_SERVER}/api/v1/instance`, {
@@ -113,7 +144,7 @@ const deleteInstance = async (instanceId: string, instanceStatus: string) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: instanceId }),
+          body: JSON.stringify({ id: instance.name }),
         })
       ).json();
 
@@ -121,11 +152,11 @@ const deleteInstance = async (instanceId: string, instanceStatus: string) => {
         throw new Error("LXD can not create operation");
       } else {
         // logo deleted instance
-        console.log(`deleted instance: ${instanceId}`);
+        console.log(`deleted instance: ${instance.name}`);
       }
     } else {
       // stop instance -> will be deleted next time worker runs
-      await stopInstance(instanceId);
+      await stopInstance(instance.name);
     }
   } catch (error: any) {
     // log error
@@ -134,61 +165,39 @@ const deleteInstance = async (instanceId: string, instanceStatus: string) => {
   }
 };
 
-const syncInstnaceState = async (
-  instanceRecordFromDB: any,
-  instanceRecordFromServer: any,
-) => {
-  for (const instance of instanceRecordFromDB) {
-    // checks if instance exists on server
-    if (instanceRecordFromServer.get(instance[0])) {
-      const statusInDB = instance[1];
-      const statusInServer = instanceRecordFromServer.get(instance[0]);
+const removeGhost = async (dbList: any, serverList: any) => {
+  try {
+    for (const instance of serverList) {
+      if (!dbList.get(instance[0])) {
+        const parsedServerData = await JSON.parse(instance[1]);
 
-      if (statusInDB !== statusInServer) {
-        // update state in db
-        const [updateStateInDB]: any = await pool.query(
-          "UPDATE instances SET status=? WHERE id=?",
-          [statusInServer, instance[0]],
-        );
+        // check if instance created date is > 1 hrs
+        const createdMins = getMins(new Date(parsedServerData.created_at));
+
+        if (createdMins > 15) {
+          await deleteInstance(parsedServerData);
+        }
       }
-    } else {
-      // executes when records does not exists on server
-
-      // remove records from db
-      await sendToDeleteQueue(instance[0]);
     }
-  }
-};
-
-const removeGhotInstnace = async (
-  instanceRecordFromDB: any,
-  instanceRecordFromServer: any,
-) => {
-  for (const instance of instanceRecordFromServer) {
-    if (!instanceRecordFromDB.get(instance[0])) {
-      await deleteInstance(instance[0], instance[1]);
-    }
+  } catch (error) {
+    throw new Error("error removing ghost instance");
   }
 };
 
 const syncWorker = async () => {
-  try {
-    // fetch all instance list from server
-    const instnaceFromServer: any = await getAllInstanceFromServer();
+  // calls server instnace list
+  const dbList: any = await instnaceFromDB();
 
-    // fetch all instance list from db
-    const instnaceFromDB: any = await getAllInstanceFromDB();
+  // calls db instnace list
+  const serverList: any = await instnaceFromServer();
 
-    if (instnaceFromDB?.size > 0) {
-      await syncInstnaceState(instnaceFromDB, instnaceFromServer);
-    }
+  // syncs instnace state b/w server and db
+  if (dbList?.size > 0) {
+    await syncState(dbList, serverList);
+  }
 
-    if (instnaceFromServer?.size > 0) {
-      await removeGhotInstnace(instnaceFromDB, instnaceFromServer);
-    }
-  } catch (error: any) {
-    // log error
-    console.log(error.message);
+  if (serverList?.size > 0) {
+    await removeGhost(dbList, serverList);
   }
 };
 
@@ -206,7 +215,7 @@ const sendHealthStatus = async () => {
 };
 
 while (true) {
-  sendHealthStatus();
-  syncWorker();
+  await sendHealthStatus();
+  await syncWorker();
   await sleep(10);
 }
