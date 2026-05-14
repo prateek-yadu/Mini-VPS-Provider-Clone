@@ -126,6 +126,8 @@
   --color-primary: #1D1E20;
   --color-secondary-foreground: #525252;
   --color-accent: #6C44FC;
+  --color-success: oklch(62.7% 0.194 149.214);
+  --color-danger: oklch(57.7% 0.245 27.325);
   --color-primary-background: #fafafa;
   --color-border-primary: #e5e5e5;
   --color-muted: #757575;
