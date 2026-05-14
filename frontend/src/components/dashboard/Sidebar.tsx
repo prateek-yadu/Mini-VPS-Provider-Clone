@@ -34,7 +34,7 @@ export default function Sidebar({ headerLinks, footerLinks, isOpen, setIsOpen }:
             <aside className="hidden lg:block h-screen sticky bottom-0 top-0 bg-white lg:w-[26%] xl:w-[22%] 2xl:w-[15%] p-4">
 
                 {/* App title */}
-                <h2 className="font-semibold text-xl text-primary px-4 flex items-center gap-3"> <span className="size-8"><img src="/brandIcon.svg" alt="brand icon" className="object-center" /></span> {appName}</h2>
+                <Link to={"/dashboard"} className="font-semibold text-xl text-primary px-4 flex items-center gap-3"> <span className="size-8"><img src="/brandIcon.svg" alt="brand icon" className="object-center" /></span> {appName}</Link>
 
                 <span className="text-muted uppercase text-xs font-medium mt-8 block mb-3 px-4">Overview</span>
                 {/* Dashboard links */}
