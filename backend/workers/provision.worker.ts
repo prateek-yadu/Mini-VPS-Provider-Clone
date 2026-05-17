@@ -1,8 +1,8 @@
 import { config } from "dotenv";
 import { Job, Worker } from "bullmq";
-// @ts-ignore
-import { redisConnection } from "../lib/redis.ts";
+import { redisConnection } from "../lib/redis.js";
 import { Redis } from "ioredis";
+import { logger } from "../lib/logger.utils.js";
 
 config({ path: "../.env" });
 
@@ -27,21 +27,39 @@ const worker = new Worker(
       ).json();
 
       if (createInstance.status !== 200) {
-        throw new Error("Instance creation failed");
+        await logger.worker.log("provision", {
+          type: "error",
+          message: `Instnace ${job.data.name} provision failed.`,
+        });
+      } else {
+        await logger.worker.log("provision", {
+          type: "success",
+          message: `Instnace ${job.data.name} provisioned successfully.`,
+        });
       }
     } catch (error: any) {
-      throw new Error("Instance creation failed, Reason:", error);
+      await logger.worker.log("provision", {
+        type: "error",
+        message: `Instance ${job.data.name} provision failed.`,
+      });
     }
   },
   redisConnection,
 );
 
-worker.on("ready", () => {
+worker.on("ready", async () => {
+  await logger.worker.log("provision", {
+    type: "info",
+    message: "Worker is up and running.",
+  });
   iscrashed = false;
 });
 
-worker.on("error", () => {
-  console.log("DOWN");
+worker.on("error", async () => {
+  await logger.worker.log("provision", {
+    type: "error",
+    message: "Worker went down.",
+  });
   iscrashed = true;
 });
 
