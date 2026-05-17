@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { Redis } from "ioredis";
-// @ts-ignore
-import { pool } from "../lib/db.ts";
+import { pool } from "../lib/db.js";
+import { logger } from "../lib/logger.utils.js";
 
 // dotenv config
 config({ path: "../.env" });
@@ -14,9 +14,12 @@ const redis = new Redis();
 
 var iscrashed = false;
 
-socket.addEventListener("open", () => {
+socket.addEventListener("open", async () => {
   iscrashed = false;
-  console.log("listening for socket connection...");
+  await logger.worker.log("event", {
+    type: "info",
+    message: "Listening for socket connection...",
+  });
 });
 
 socket.addEventListener("message", async (event) => {
@@ -57,16 +60,25 @@ socket.addEventListener("message", async (event) => {
       );
     }
   } catch (error) {
-    // logs error - # TODO
+    await logger.worker.log("event", {
+      type: "error",
+      message: "Error while performing operation.",
+    });
   }
 });
 
-socket.addEventListener("error", () => {
-  // logs error - # TODO
+socket.addEventListener("error", async (error) => {
+  await logger.worker.log("event", {
+    type: "error",
+    message: "Socket connection error.",
+  });
 });
 
-socket.addEventListener("close", () => {
-  console.log("connection closed by server");
+socket.addEventListener("close", async () => {
+  await logger.worker.log("event", {
+    type: "error",
+    message: "Socket connection closed by server.",
+  });
   iscrashed = true;
 });
 
