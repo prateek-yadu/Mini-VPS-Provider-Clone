@@ -1,10 +1,9 @@
 import { config } from "dotenv";
 import { Job, Worker } from "bullmq";
-// @ts-ignore
-import { redisConnection } from "../lib/redis.ts";
-// @ts-ignore
-import { pool } from "../lib/db.ts";
+import { redisConnection } from "../lib/redis.js";
+import { pool } from "../lib/db.js";
 import { Redis } from "ioredis";
+import { logger } from "../lib/logger.utils.js";
 
 config({ path: "../.env" });
 
@@ -69,12 +68,21 @@ const worker = new Worker(
             }
 
             if (instanceOperationReq.status !== 200) {
-              throw new Error("Operation failed");
+              await logger.worker.log("lifecycle", {
+                type: "error",
+                message: `Can not perform operation ${job.data.operation} to instance ${job.data.name}, Operation failed.`,
+              });
+            } else {
+              await logger.worker.log("lifecycle", {
+                type: "error",
+                message: `Successfully performed ${job.data.operation} operation to instance ${job.data.name}.`,
+              });
             }
           } else {
-            throw new Error(
-              `Instance not present to perform ${job.data.operation} operation`,
-            );
+            await logger.worker.log("lifecycle", {
+              type: "error",
+              message: `Instance ${job.data.name} not present to perform ${job.data.operation} operation.`,
+            });
           }
 
           break;
@@ -111,6 +119,11 @@ const worker = new Worker(
               "UPDATE ip_addresses SET in_use=0 WHERE id=?",
               [job.data.instanceIPID],
             );
+
+            await logger.worker.log("lifecycle", {
+              type: "info",
+              message: `Deleted instance ${job.data.name} from lxd & DB.`,
+            });
           } else {
             // --- ignore when retry
 
@@ -138,27 +151,33 @@ const worker = new Worker(
             }
 
             // ---
-
-            throw new Error(
-              "delete operation success, retrying for database clean up",
-            );
           }
 
           break;
       }
     } catch (error: any) {
-      throw new Error("Instance operation failed, Reason:", error);
+      await logger.worker.log("lifecycle", {
+        type: "error",
+        message: `Can not perform ${job.data.operation} operation to instance ${job.data.name}.`,
+      });
     }
   },
   redisConnection,
 );
 
-worker.on("ready", () => {
+worker.on("ready", async () => {
+  await logger.worker.log("lifecycle", {
+    type: "info",
+    message: "Worker is up and running.",
+  });
   iscrashed = false;
 });
 
-worker.on("error", () => {
-  console.log("DOWN");
+worker.on("error", async () => {
+  await logger.worker.log("lifecycle", {
+    type: "error",
+    message: "Worker went down.",
+  });
   iscrashed = true;
 });
 
