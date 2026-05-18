@@ -5,7 +5,15 @@ livedebugging {
 }
 
 local.file_match "local_files" {
-    path_targets = [{"__path__" = "/temp/logs/*.log", "job" = "backend", "hostname" = constants.hostname}]
+    path_targets = [
+      {"__path__" = "/temp/logs/backend/*.log", "job" = "backend", "service" = "backend", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/workers/event/*.log", "job" = "event-worker", "service" = "worker", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/workers/expiry/*.log", "job" = "expiry-worker", "service" = "worker", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/workers/lifecycle/*.log", "job" = "lifecycle-worker", "service" = "worker", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/workers/provision/*.log", "job" = "provision-worker", "service" = "worker", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/workers/sync/*.log", "job" = "sync-worker", "service" = "worker", "hostname" = constants.hostname},
+      {"__path__" = "/temp/logs/lxd_agent/*.log", "job" = "lxd-agent", "service" = "lxd-agent", "hostname" = constants.hostname},
+      ]
     sync_period  = "5s"
 }
  
