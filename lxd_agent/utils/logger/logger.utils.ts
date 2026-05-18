@@ -17,7 +17,7 @@ export const logger = {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
 
-      const outDir = path.join(__dirname, "..", "..", "logs", filename);
+      const outDir = path.join(__dirname, "..", "..", "..", "logs", filename);
 
       log.timestamp = Date.now();
 
