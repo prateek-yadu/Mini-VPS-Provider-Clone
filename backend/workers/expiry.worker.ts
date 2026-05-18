@@ -1,11 +1,11 @@
-import {Redis} from "ioredis";
+import { Redis } from "ioredis";
 import { pool } from "../lib/db.js";
 import { lifecycleQueue } from "../server/queues/instance/lifecycle.queue.js";
 import { isExpired } from "../server/utils/validators/planValidators.js";
 import { redisConnection } from "../lib/redis.js";
+import { logger } from "../lib/logger.utils.js";
 
 const redis = new Redis(redisConnection.connection);
-
 
 const getExpiredHrs = (expiredDate: Date) => {
   const currentDate = new Date();
@@ -30,13 +30,20 @@ const getExpiredInstance = async () => {
     for (const instance of instnaces) {
       const expired: boolean = isExpired(instance.expires_at);
       if (expired) {
+        await logger.worker.log("expiry", {
+          type: "info",
+          message: `Found expired instance ${instance.id}.`,
+        });
         expiredInstnaceList.push(instance);
       }
     }
 
     return expiredInstnaceList;
   } catch (error) {
-    throw new Error("Can not get expired instances");
+    await logger.worker.log("expiry", {
+      type: "error",
+      message: `Can not get expired instances.`,
+    });
   }
 };
 
@@ -49,10 +56,21 @@ const stopInstance = async (instanceId: string) => {
     );
 
     if (!(instanceStopReq.status == 200)) {
-      throw new Error("can not stop instance");
+      await logger.worker.log("expiry", {
+        type: "error",
+        message: `Can not stop expired instance, lxd agent returned ${instanceStopReq.status} status code.`,
+      });
+    } else {
+      await logger.worker.log("expiry", {
+        type: "success",
+        message: `Stopped expired instance ${instanceId}.`,
+      });
     }
   } catch (error: any) {
-    throw new Error("can not stop instance", error);
+    await logger.worker.log("expiry", {
+      type: "error",
+      message: `Error stopping expired instance.`,
+    });
   }
 };
 
@@ -80,10 +98,16 @@ const sendTODeletionQueue = async (instance: any) => {
   const queueReq = await lifecycleQueue(queueData);
 
   if (queueReq === "waiting" || queueReq === "active") {
+    await logger.worker.log("expiry", {
+      type: "info",
+      message: `Sent expired instnace ${queueData.name} to delete queue.`,
+    });
     return;
   } else {
-    // log error
-    throw new Error("Error deleting instance from redis side");
+    await logger.worker.log("expiry", {
+      type: "error",
+      message: `Error can not delete expired instance ${queueData.name}, Queue returned status ${queueReq}.`,
+    });
   }
 };
 
@@ -111,7 +135,10 @@ const expiryWorker = async () => {
     // remove expired instances in age is > 48 hrs
     await removeExpiredInstance();
   } catch (error: any) {
-    console.log("Error", error.message);
+    await logger.worker.log("expiry", {
+      type: "error",
+      message: `Error occured in worker`,
+    });
   }
 };
 

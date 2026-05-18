@@ -13,3 +13,7 @@ backend/node_modules
 backend/logs
 backend/dist
 backend/.env
+
+# Logs
+
+logs
