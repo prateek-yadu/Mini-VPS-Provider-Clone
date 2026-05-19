@@ -17,7 +17,7 @@ import {
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { Redis } from "ioredis";
-import { cacheInstances } from "./cache/instance.cache.js";
+import { cacheInstances, removeCahe } from "./cache/instance.cache.js";
 import { redisConnection } from "../lib/redis.js";
 
 const app = express();
@@ -94,6 +94,11 @@ io.on("connection", async (socket) => {
   const userId = socket.data.id; // from auth middleware
   socket.join(`user:${userId}`);
   socket.emit("instance:lifecycle:events", "connected to room");
+
+  // handles disconneted user
+  socket.on("disconnect", ()=>{
+    removeCahe(socket.data.id)
+  })
 });
 
 server.listen(port, () => {
