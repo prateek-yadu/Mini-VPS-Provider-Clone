@@ -32,7 +32,9 @@ export const logger = {
     
             // creates logs folder if dir does not exists
             if (!fs.existsSync(outDir)) {
-                fs.mkdirSync(outDir);
+                fs.mkdirSync(outDir, {
+                    recursive: true
+                });
             }
     
             fs.appendFile(`${outDir}/${filename}.log`, JSON.stringify(log) + "\n", err => { });
