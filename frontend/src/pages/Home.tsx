@@ -1,4 +1,4 @@
-import { Activity, Bolt, ChevronLeft, ChevronRight, MoveLeft, MoveRight, PackageOpen, Server } from "lucide-react";
+import { Activity, Bolt, ChevronLeft, ChevronRight, PackageOpen, Server } from "lucide-react";
 import { Link } from "react-router";
 
 function Home() {
