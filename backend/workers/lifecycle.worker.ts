@@ -73,7 +73,7 @@ const worker = new Worker(
             });
           } else {
             await logger.worker.log("lifecycle", {
-              type: "error",
+              type: "success",
               message: `Successfully performed ${job.data.operation} operation to instance ${job.data.name}.`,
             });
           }
