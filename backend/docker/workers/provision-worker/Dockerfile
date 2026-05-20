@@ -5,6 +5,8 @@ WORKDIR /event-worker
 COPY package*.json .
 
 RUN npm install
+RUN npm i -g tsx
+
 
 COPY lib/db.ts lib/db.ts
 COPY lib/logger.utils.ts lib/logger.utils.ts
