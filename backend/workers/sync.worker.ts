@@ -118,7 +118,7 @@ const syncState = async (dbList: any, serverList: any) => {
     const parsedDBData = await JSON.parse(instance[1]);
 
     // checks if instance exists on server
-    if (serverList.get(instance[0])) {
+    if (serverList?.get(instance[0])) {
       const parsedServerData = await JSON.parse(serverList.get(instance[0]));
 
       const statusInDB = parsedDBData.status;
