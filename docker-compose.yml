@@ -30,6 +30,12 @@ services:
     ports:
       - 3306:3306
       - 33060:33060
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "-p $$MYSQL_ROOT_PASSWORD", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   cache:
     image: redis:alpine3.23
